@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layoutPopupLayers"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="20dp"
+        app:cardBackgroundColor="?android:attr/windowBackground"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="1dp">
+
+        <ImageView
+            android:id="@+id/btnMapNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:src="@drawable/normal" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        app:cardBackgroundColor="?android:attr/windowBackground"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="1dp">
+
+        <ImageView
+            android:id="@+id/btnMapSatellite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:src="@drawable/satelit" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        app:cardBackgroundColor="?android:attr/windowBackground"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="1dp">
+
+        <ImageView
+            android:id="@+id/btnMapHybrid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:src="@drawable/campur" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        app:cardBackgroundColor="?android:attr/windowBackground"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="1dp">
+
+        <ImageView
+            android:id="@+id/btnMapTerrain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:src="@drawable/medan" />
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>
