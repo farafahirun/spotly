@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/peta"
+        android:icon="@drawable/peta_bottom"
+        android:title="Peta" />
+    <item
+        android:id="@+id/simpan"
+        android:icon="@drawable/simpan_bottom"
+        android:title="Simpan"/>
+    <item
+        android:id="@+id/cerita"
+        android:icon="@drawable/cerita_bottom"
+        android:title="Cerita" />
+</menu>
