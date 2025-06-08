@@ -99,6 +99,22 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             applyMapStyle();
         });
 
+        binding.search.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (!query.trim().isEmpty()) {
+                    searchLocation(query.trim());
+                }
+                binding.search.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
         binding.btnMapType.setOnClickListener(v -> {
             View popupView = LayoutInflater.from(requireContext()).inflate(R.layout.tipe_map, null);
             final PopupWindow popupWindow = new PopupWindow(
@@ -399,6 +415,37 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             poly.add(p);
         }
         return poly;
+    }
+
+    private void searchLocation(String locationName) {
+        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(locationName, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+                // Pindahkan camera ke lokasi hasil search
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
+
+                // Tambahkan marker di lokasi search → jadi destination
+                if (destinationMarker != null) destinationMarker.remove();
+                destinationLatLng = latLng;
+                destinationMarker = mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title("Hasil Pencarian")
+                        .snippet(address.getAddressLine(0)));
+
+                destinationMarker.showInfoWindow();
+
+                // Aktifkan tombol draw route
+                binding.btnDrawRoute.setEnabled(true);
+            }
+            // Jika tidak ditemukan → tidak lakukan apa-apa (tidak ada Toast)
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Gagal cari → tidak ada Toast
+        }
     }
 
     @Override
