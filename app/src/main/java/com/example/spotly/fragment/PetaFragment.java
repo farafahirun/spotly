@@ -74,7 +74,8 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             } else {
                 ThemeHelper.setTheme(requireContext(), "dark");
             }
-            requireActivity().recreate();
+            updateImageTheme();
+            applyMapStyle();
         });
 
         binding.btnMapType.setOnClickListener(v -> {
@@ -120,6 +121,8 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        applyMapStyle();
 
         mMap.setOnMapClickListener(latLng -> {
             mMap.clear();
@@ -230,6 +233,29 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
 //            binding.layerIcon.setImageResource(R.drawable.layerr_icon);
         }
     }
+
+    private void applyMapStyle() {
+        if (mMap == null) return;
+
+        String currentTheme = ThemeHelper.getCurrentTheme(requireContext());
+
+        int styleResId = "dark".equals(currentTheme)
+                ? R.raw.map_dark
+                : R.raw.map_light;
+
+        try {
+            boolean success = mMap.setMapStyle(
+                    com.google.android.gms.maps.model.MapStyleOptions.loadRawResourceStyle(requireContext(), styleResId)
+            );
+
+            if (!success) {
+                // Log error jika gagal
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void onDestroyView() {
