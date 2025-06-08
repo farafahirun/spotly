@@ -147,6 +147,9 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        binding.btnFocusLocation.setOnClickListener(v -> moveCameraToUserLocation());
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             try {
@@ -172,6 +175,7 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                 .addOnSuccessListener(location -> {
                     if (location != null) {
                         LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.setPadding(0, 0, 20, 0);
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f));
                     }
                 })
@@ -204,8 +208,10 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
 
         if ("dark".equals(currentTheme)) {
             imgToggleTheme.setImageResource(R.drawable.light_icon);
+//            binding.layerIcon.setImageResource(R.drawable.layer_icon);
         } else {
             imgToggleTheme.setImageResource(R.drawable.dark_icon);
+//            binding.layerIcon.setImageResource(R.drawable.layerr_icon);
         }
     }
 
