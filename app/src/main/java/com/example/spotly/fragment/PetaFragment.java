@@ -41,6 +41,8 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FragmentPetaBinding binding;
     private GoogleMap mMap;
+    private LatLng lastKnownUserLatLng = null;
+    private boolean isFirstLoad = true;
     private ImageView imgToggleTheme;
 
     public PetaFragment() {
@@ -119,9 +121,6 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-//        LatLng jakarta = new LatLng(-6.200000, 106.816666);
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(jakarta, 10f));
-
         mMap.setOnMapClickListener(latLng -> {
             mMap.clear();
             Marker marker = mMap.addMarker(new MarkerOptions()
@@ -147,14 +146,26 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        binding.btnFocusLocation.setOnClickListener(v -> moveCameraToUserLocation());
+        binding.btnFocusLocation.setOnClickListener(v -> {
+            if (lastKnownUserLatLng != null) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownUserLatLng, 15f));
+            } else {
+                moveCameraToUserLocation();
+            }
+        });
+
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             try {
                 mMap.setMyLocationEnabled(true);
-                moveCameraToUserLocation();
+                if (lastKnownUserLatLng != null) {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownUserLatLng, 15f));
+                    isFirstLoad = false;
+                } else {
+                    moveCameraToUserLocation();
+                }
             } catch (SecurityException e) {
                 e.printStackTrace();
             }
@@ -175,8 +186,13 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                 .addOnSuccessListener(location -> {
                     if (location != null) {
                         LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        mMap.setPadding(0, 0, 20, 0);
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f));
+                        lastKnownUserLatLng = userLatLng;
+                        if (isFirstLoad) {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f));
+                            isFirstLoad = false;
+                        } else {
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f));
+                        }
                     }
                 })
                 .addOnFailureListener(e -> {
