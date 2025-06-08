@@ -75,7 +75,7 @@
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_marginRight="15dp"
-            android:layout_marginBottom="150dp"
+            android:layout_marginBottom="185dp"
             app:cardBackgroundColor="?android:attr/windowBackground"
             app:cardCornerRadius="30dp"
             app:cardElevation="8dp"
@@ -89,6 +89,27 @@
                 android:layout_gravity="center"
                 android:layout_margin="1dp"
                 android:src="@drawable/focus" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnDrawRoute"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="10dp"
+            app:cardBackgroundColor="?android:attr/windowBackground"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnFocusLocation"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_gravity="center"
+                android:layout_margin="1dp"
+                android:src="@drawable/route" />
         </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
