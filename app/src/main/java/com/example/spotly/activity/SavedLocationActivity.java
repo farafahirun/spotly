@@ -31,7 +31,7 @@ public class SavedLocationActivity extends AppCompatActivity {
     private boolean isLocationSelected = false;
     private String selectedAlamat = "";
     private int folderId;
-    private ImageView fabAddLocation;
+    private ImageView kembali_simpan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +40,7 @@ public class SavedLocationActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerViewSavedLocation);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        fabAddLocation = findViewById(R.id.btnAddLocation);
+        kembali_simpan = findViewById(R.id.kembali_simpan);
         databaseHelper = new DatabaseHelper(this);
 
         folderId = getIntent().getIntExtra("folder_id", -1);
@@ -50,9 +50,8 @@ public class SavedLocationActivity extends AppCompatActivity {
             return;
         }
 
-        fabAddLocation.setOnClickListener(v -> {
-            Intent intent = new Intent(SavedLocationActivity.this, MapsPickLocationActivity.class);
-            startActivityForResult(intent, 1001);
+        kembali_simpan.setOnClickListener(v -> {
+            onBackPressed();
         });
         loadSavedLocations();
     }

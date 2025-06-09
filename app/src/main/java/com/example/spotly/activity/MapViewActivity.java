@@ -1,6 +1,7 @@
 package com.example.spotly.activity;
 
 import android.os.Bundle;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,6 +17,7 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
     private GoogleMap mMap;
     private double latitude, longitude;
     private String title;
+    private ImageView kembali_saved;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,11 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         latitude = getIntent().getDoubleExtra("latitude", 0);
         longitude = getIntent().getDoubleExtra("longitude", 0);
         title = getIntent().getStringExtra("title");
+
+        kembali_saved = findViewById(R.id.kembali_saved);
+        kembali_saved.setOnClickListener(v -> {
+            onBackPressed();
+        });
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);

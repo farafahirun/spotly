@@ -76,23 +76,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return folderList;
     }
 
-    public boolean updateFolder(int id_folder, String newName) {
+    public boolean updateFolder(int id, String newName) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("nama_folder", newName);
-        int result = db.update("Folder", values, "id_folder = ?", new String[]{String.valueOf(id_folder)});
+        int rows = db.update("Folder", values, "id_folder = ?", new String[]{String.valueOf(id)});
         db.close();
-        return result > 0;
+        return rows > 0;
     }
 
-    public boolean deleteFolder(int id_folder) {
+    public void deleteFolder(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        int result = db.delete("Folder", "id_folder = ?", new String[]{String.valueOf(id_folder)});
+        db.delete("Folder", "id_folder = ?", new String[]{String.valueOf(id)});
         db.close();
-        return result > 0;
     }
 
-    //    SavedLocation operations
+    public int getFileCountInFolder(int folderId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM SavedLocation WHERE id_folder = ?", new String[]{String.valueOf(folderId)});
+        int count = 0;
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return count;
+    }
+
     public long insertSavedLocation(int id_folder, String judul, String tanggal, double lat, double lng, String alamat, String note) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();

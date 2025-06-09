@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ public class EditSavedLocationActivity extends AppCompatActivity {
     private int savedLocationId;
     private double selectedLat, selectedLng;
     private String selectedAddress;
+    private ImageView kembali_simpan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,11 @@ public class EditSavedLocationActivity extends AppCompatActivity {
         textAddress = findViewById(R.id.textAddress);
         buttonPickLocation = findViewById(R.id.buttonPickLocation);
         buttonSave = findViewById(R.id.buttonSave);
+        kembali_simpan = findViewById(R.id.kembali_simpan);
+
+        kembali_simpan.setOnClickListener(v -> {
+            onBackPressed();
+        });
 
         databaseHelper = new DatabaseHelper(this);
 
