@@ -45,7 +45,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,13 +57,11 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     private LatLng lastKnownUserLatLng = null;
     private boolean isFirstLoad = true;
-    private ImageView imgToggleTheme;
     private LatLng originLatLng = null;
     private LatLng destinationLatLng = null;
     private Marker originMarker = null;
     private Marker destinationMarker = null;
     private Polyline currentPolyline;
-
 
     public PetaFragment() {
     }
@@ -84,18 +81,17 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             mapFragment.getMapAsync(this);
         }
 
-        imgToggleTheme = binding.getRoot().findViewById(R.id.imgToggleTheme);
-        updateImageTheme();
+        updateIconMode();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        imgToggleTheme.setOnClickListener(v -> {
+        binding.modeIcon.setOnClickListener(v -> {
             String currentTheme = ThemeHelper.getCurrentTheme(requireContext());
             if ("dark".equals(currentTheme)) {
                 ThemeHelper.setTheme(requireContext(), "light");
             } else {
                 ThemeHelper.setTheme(requireContext(), "dark");
             }
-            updateImageTheme();
+            updateIconMode();
             applyMapStyle();
         });
 
@@ -115,7 +111,7 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        binding.btnMapType.setOnClickListener(v -> {
+        binding.tipeMap.setOnClickListener(v -> {
             View popupView = LayoutInflater.from(requireContext()).inflate(R.layout.tipe_map, null);
             final PopupWindow popupWindow = new PopupWindow(
                     popupView,
@@ -124,32 +120,32 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                     true
             );
 
-            ImageView btnNormal = popupView.findViewById(R.id.btnMapNormal);
-            ImageView btnSatellite = popupView.findViewById(R.id.btnMapSatellite);
-            ImageView btnTerrain = popupView.findViewById(R.id.btnMapTerrain);
-            ImageView btnHybrid = popupView.findViewById(R.id.btnMapHybrid);
+            ImageView normalMap = popupView.findViewById(R.id.normalMap);
+            ImageView sateliteMap = popupView.findViewById(R.id.sateliteMap);
+            ImageView terrainMap = popupView.findViewById(R.id.terrainMap);
+            ImageView hybridMap = popupView.findViewById(R.id.hybridMap);
 
-            btnNormal.setOnClickListener(v1 -> {
+            normalMap.setOnClickListener(v1 -> {
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 popupWindow.dismiss();
             });
 
-            btnSatellite.setOnClickListener(v1 -> {
+            sateliteMap.setOnClickListener(v1 -> {
                 mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                 popupWindow.dismiss();
             });
 
-            btnTerrain.setOnClickListener(v1 -> {
+            terrainMap.setOnClickListener(v1 -> {
                 mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 popupWindow.dismiss();
             });
 
-            btnHybrid.setOnClickListener(v1 -> {
+            hybridMap.setOnClickListener(v1 -> {
                 mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 popupWindow.dismiss();
             });
 
-            popupWindow.showAsDropDown(binding.btnMapType, 0, 0);
+            popupWindow.showAsDropDown(binding.tipeMap, 0, 0);
         });
         return view;
     }
@@ -188,17 +184,17 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                 destinationMarker.showInfoWindow();
             }
 
-            binding.btnDrawRoute.setEnabled(true);
+            binding.route.setEnabled(true);
         });
 
-        binding.btnDrawRoute.setOnClickListener(v -> {
+        binding.route.setOnClickListener(v -> {
             if (originLatLng != null && destinationLatLng != null) {
                 getRoute(originLatLng, destinationLatLng);
             }
         });
 
 
-        binding.btnFocusLocation.setOnClickListener(v -> {
+        binding.fokusUser.setOnClickListener(v -> {
             if (lastKnownUserLatLng != null) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownUserLatLng, 15f));
             } else {
@@ -273,13 +269,13 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void updateImageTheme() {
+    private void updateIconMode() {
         String currentTheme = ThemeHelper.getCurrentTheme(requireContext());
         if ("dark".equals(currentTheme)) {
-            imgToggleTheme.setImageResource(R.drawable.light_icon);
+            binding.modeIcon.setImageResource(R.drawable.light_icon);
 //            binding.layerIcon.setImageResource(R.drawable.layer_icon);
         } else {
-            imgToggleTheme.setImageResource(R.drawable.dark_icon);
+            binding.modeIcon.setImageResource(R.drawable.dark_icon);
 //            binding.layerIcon.setImageResource(R.drawable.layerr_icon);
         }
     }
@@ -424,11 +420,7 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
                 LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-
-                // Pindahkan camera ke lokasi hasil search
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
-
-                // Tambahkan marker di lokasi search → jadi destination
                 if (destinationMarker != null) destinationMarker.remove();
                 destinationLatLng = latLng;
                 destinationMarker = mMap.addMarker(new MarkerOptions()
@@ -437,14 +429,10 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                         .snippet(address.getAddressLine(0)));
 
                 destinationMarker.showInfoWindow();
-
-                // Aktifkan tombol draw route
-                binding.btnDrawRoute.setEnabled(true);
+                binding.route.setEnabled(true);
             }
-            // Jika tidak ditemukan → tidak lakukan apa-apa (tidak ada Toast)
         } catch (IOException e) {
             e.printStackTrace();
-            // Gagal cari → tidak ada Toast
         }
     }
 
