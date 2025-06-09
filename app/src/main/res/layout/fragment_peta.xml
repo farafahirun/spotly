@@ -26,12 +26,9 @@
                 android:padding="7dp">
 
                 <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:src="@drawable/layer_icon" />
+                    android:layout_width="140dp"
+                    android:layout_height="55dp"
+                    android:src="@drawable/spotly" />
 
                 <View
                     android:layout_width="0dp"
