@@ -175,8 +175,16 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                 List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                 if (addresses != null && !addresses.isEmpty()) {
                     Address address = addresses.get(0);
+                    String namaTempat = address.getAdminArea();
+                    if (namaTempat == null || namaTempat.isEmpty()) {
+                        namaTempat = address.getLocality();
+                    } else {
+                        namaTempat = address.getSubLocality();
+                    }
+
                     String alamat = address.getAddressLine(0);
 
+                    binding.alamatSingkat.setText(namaTempat);
                     binding.markerAddress.setText(alamat);
                     binding.markerInfoPanel.setVisibility(View.VISIBLE);
                 } else {
@@ -458,6 +466,14 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                         .title("Hasil Pencarian")
                         .snippet(address.getAddressLine(0)));
 
+                String namaTempat = address.getAdminArea();
+                if (namaTempat == null || namaTempat.isEmpty()) {
+                    namaTempat = address.getLocality();
+                } else {
+                    namaTempat = address.getSubLocality();
+                }
+
+                binding.alamatSingkat.setText(namaTempat);
                 binding.markerAddress.setText(address.getAddressLine(0));
                 binding.markerInfoPanel.setVisibility(View.VISIBLE);
                 binding.fokusUser.setVisibility(View.GONE);
