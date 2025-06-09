@@ -158,36 +158,6 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
 
         applyMapStyle();
 
-//        mMap.setOnMapClickListener(latLng -> {
-//            destinationLatLng = latLng;
-//
-//            if (destinationMarker != null) destinationMarker.remove();
-//
-//            destinationMarker = mMap.addMarker(new MarkerOptions()
-//                    .position(latLng)
-//                    .title("Destination"));
-//
-//            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
-//            try {
-//                List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-//                if (addresses != null && !addresses.isEmpty()) {
-//                    Address address = addresses.get(0);
-//                    String alamat = address.getAddressLine(0);
-//                    destinationMarker.setSnippet(alamat);
-//                    destinationMarker.showInfoWindow();
-//                } else {
-//                    destinationMarker.setSnippet("Alamat tidak ditemukan");
-//                    destinationMarker.showInfoWindow();
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                destinationMarker.setSnippet("Gagal mengambil alamat");
-//                destinationMarker.showInfoWindow();
-//            }
-//
-//            binding.route.setEnabled(true);
-//        });
-
         mMap.setOnMapLongClickListener(latLng -> {
             ((MainActivity) requireActivity()).hideBottomNav();
             binding.fokusUser.setVisibility(View.GONE);
@@ -488,7 +458,11 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                         .title("Hasil Pencarian")
                         .snippet(address.getAddressLine(0)));
 
-                destinationMarker.showInfoWindow();
+                binding.markerAddress.setText(address.getAddressLine(0));
+                binding.markerInfoPanel.setVisibility(View.VISIBLE);
+                binding.fokusUser.setVisibility(View.GONE);
+                binding.route.setVisibility(View.GONE);
+                ((MainActivity) requireActivity()).hideBottomNav();
                 binding.route.setEnabled(true);
             }
         } catch (IOException e) {
