@@ -161,7 +161,6 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         mMap.setOnMapLongClickListener(latLng -> {
             ((MainActivity) requireActivity()).hideBottomNav();
             binding.fokusUser.setVisibility(View.GONE);
-            binding.route.setVisibility(View.GONE);
             destinationLatLng = latLng;
 
             if (destinationMarker != null) destinationMarker.remove();
@@ -201,7 +200,6 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         binding.closePanel.setOnClickListener(v -> {
             binding.markerInfoPanel.setVisibility(View.GONE);
             binding.fokusUser.setVisibility(View.VISIBLE);
-            binding.route.setVisibility(View.VISIBLE);
             ((MainActivity) requireActivity()).showBottomNav();
         });
 
@@ -212,21 +210,6 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         binding.buttonCerita.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Ditambahkan ke Cerita!", Toast.LENGTH_SHORT).show();
         });
-
-        binding.buttonRute.setOnClickListener(v -> {
-            if (originLatLng != null && destinationLatLng != null) {
-                getRoute(originLatLng, destinationLatLng);
-            } else {
-                Toast.makeText(requireContext(), "Pilih tujuan terlebih dahulu.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        binding.route.setOnClickListener(v -> {
-            if (originLatLng != null && destinationLatLng != null) {
-                getRoute(originLatLng, destinationLatLng);
-            }
-        });
-
 
         binding.fokusUser.setOnClickListener(v -> {
             if (lastKnownUserLatLng != null) {
@@ -339,118 +322,6 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void getRoute(LatLng origin, LatLng destination) {
-        String originParam = origin.latitude + "," + origin.longitude;
-        String destinationParam = destination.latitude + "," + destination.longitude;
-
-        String apiKey = getString(R.string.api_key); // Ambil dari string.xml
-        String urlStr = "https://maps.googleapis.com/maps/api/directions/json?" +
-                "origin=" + originParam +
-                "&destination=" + destinationParam +
-                "&key=" + apiKey;
-
-        new Thread(() -> {
-            try {
-                URL url = new URL(urlStr);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.connect();
-
-                int responseCode = conn.getResponseCode();
-                if (responseCode != HttpURLConnection.HTTP_OK) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "HTTP ERROR: " + responseCode, Toast.LENGTH_SHORT).show());
-                    return;
-                }
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
-
-                JSONObject jsonResponse = new JSONObject(response.toString());
-                android.util.Log.d("DirectionsAPI", jsonResponse.toString(2));
-                String status = jsonResponse.getString("status");
-
-                if (!"OK".equals(status)) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Directions API Error: " + status, Toast.LENGTH_LONG).show());
-                    return;
-                }
-
-                JSONArray routes = jsonResponse.getJSONArray("routes");
-
-                if (routes.length() == 0) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Tidak ada route ditemukan.", Toast.LENGTH_LONG).show());
-                    return;
-                }
-
-                JSONObject route = routes.getJSONObject(0);
-                JSONObject overviewPolyline = route.getJSONObject("overview_polyline");
-                String points = overviewPolyline.getString("points");
-
-                List<LatLng> decodedPath = decodePoly(points);
-
-                requireActivity().runOnUiThread(() -> {
-                    if (currentPolyline != null) currentPolyline.remove();
-
-                    currentPolyline = mMap.addPolyline(new PolylineOptions()
-                            .addAll(decodedPath)
-                            .width(12f)
-                            .color(Color.BLUE)
-                            .geodesic(true));
-
-                    if (originMarker != null) originMarker.remove();
-                    originMarker = mMap.addMarker(new MarkerOptions()
-                            .position(originLatLng)
-                            .title("Your Location (Origin)"));
-
-                    Toast.makeText(requireContext(), "Route berhasil digambar!", Toast.LENGTH_SHORT).show();
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(requireContext(), "Exception: " + e.getMessage(), Toast.LENGTH_LONG).show());
-            }
-        }).start();
-    }
-
-    private List<LatLng> decodePoly(String encoded) {
-        List<LatLng> poly = new ArrayList<>();
-        int index = 0, len = encoded.length();
-        int lat = 0, lng = 0;
-
-        while (index < len) {
-            int b, shift = 0, result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lat += dlat;
-
-            shift = 0;
-            result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lng += dlng;
-
-            LatLng p = new LatLng(((double) lat / 1E5), ((double) lng / 1E5));
-            poly.add(p);
-        }
-        return poly;
-    }
-
     private void searchLocation(String locationName) {
         Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
         try {
@@ -477,9 +348,7 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                 binding.markerAddress.setText(address.getAddressLine(0));
                 binding.markerInfoPanel.setVisibility(View.VISIBLE);
                 binding.fokusUser.setVisibility(View.GONE);
-                binding.route.setVisibility(View.GONE);
                 ((MainActivity) requireActivity()).hideBottomNav();
-                binding.route.setEnabled(true);
             }
         } catch (IOException e) {
             e.printStackTrace();
