@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
     }
+
     public void hideBottomNav() {
         findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
     }

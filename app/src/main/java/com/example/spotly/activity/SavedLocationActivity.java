@@ -57,57 +57,6 @@ public class SavedLocationActivity extends AppCompatActivity {
         loadSavedLocations();
     }
 
-    private void showAddLocationDialog() {
-        if (!isLocationSelected) {
-            Toast.makeText(this, "Pilih lokasi terlebih dahulu", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Tambah Lokasi");
-
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_save_location, null);
-        builder.setView(dialogView);
-
-        EditText titleInput = dialogView.findViewById(R.id.titleInput);
-        EditText noteInput = dialogView.findViewById(R.id.noteInput);
-
-        builder.setPositiveButton("Simpan", (dialog, which) -> {
-            String title = titleInput.getText().toString().trim();
-            String note = noteInput.getText().toString().trim();
-
-            if (title.isEmpty()) {
-                Toast.makeText(this, "Judul wajib diisi!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String tanggal = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
-
-            SavedLocation savedLocation = new SavedLocation();
-            savedLocation.setId_folder(folderId);
-            savedLocation.setJudul(title);
-            savedLocation.setNote(note);
-            savedLocation.setLat(selectedLat);
-            savedLocation.setLng(selectedLng);
-            savedLocation.setAlamat(selectedAlamat);
-            savedLocation.setTanggal(tanggal);
-
-            long result = databaseHelper.insertSavedLocation(savedLocation);
-            if (result != -1) {
-                Toast.makeText(this, "Lokasi berhasil disimpan!", Toast.LENGTH_SHORT).show();
-                loadSavedLocations();
-                isLocationSelected = false;
-                selectedLat = 0.0;
-                selectedLng = 0.0;
-                selectedAlamat = "";
-            } else {
-                Toast.makeText(this, "Gagal menyimpan lokasi.", Toast.LENGTH_SHORT).show();
-            }
-        });
-        builder.setNegativeButton("Batal", (dialog, which) -> dialog.dismiss());
-        builder.show();
-    }
-
     private void loadSavedLocations() {
         savedLocationList = databaseHelper.getLocationsByFolderId(folderId);
         adapter = new SavedLocationAdapter(savedLocationList, this, databaseHelper);
@@ -123,7 +72,6 @@ public class SavedLocationActivity extends AppCompatActivity {
             selectedLng = data.getDoubleExtra("lng", 0.0);
             selectedAlamat = data.getStringExtra("alamat");
             isLocationSelected = true;
-            showAddLocationDialog();
         }
     }
 

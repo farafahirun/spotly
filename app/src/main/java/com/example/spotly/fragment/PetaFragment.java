@@ -1,6 +1,7 @@
 package com.example.spotly.fragment;
 
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import android.graphics.Color;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.material.card.MaterialCardView;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -345,7 +347,15 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         folderSpinner.setAdapter(adapter);
 
-        builder.setPositiveButton("Simpan", (dialog, which) -> {
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+
+        ImageView closePanel = dialogView.findViewById(R.id.close_panel);
+        closePanel.setOnClickListener(v -> dialog.dismiss());
+
+        MaterialCardView buttonSave = dialogView.findViewById(R.id.buttonSave);
+        buttonSave.setOnClickListener(v -> {
             int selectedFolderPosition = folderSpinner.getSelectedItemPosition();
             DatabaseHelper.Folder selectedFolder = folders.get(selectedFolderPosition);
 
@@ -371,13 +381,11 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             long result = databaseHelper.insertSavedLocation(savedLocation);
             if (result != -1) {
                 Toast.makeText(requireContext(), "Lokasi berhasil disimpan!", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             } else {
                 Toast.makeText(requireContext(), "Gagal menyimpan lokasi.", Toast.LENGTH_SHORT).show();
             }
         });
-
-        builder.setNegativeButton("Batal", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
     }
 
     private void searchLocation(String locationName) {
