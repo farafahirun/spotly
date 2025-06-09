@@ -13,9 +13,11 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 
+import com.example.spotly.DatabaseHelper;
 import com.example.spotly.MainActivity;
 import com.example.spotly.R;
 
@@ -37,17 +39,11 @@ import android.graphics.Color;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -63,6 +59,7 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
     private Marker originMarker = null;
     private Marker destinationMarker = null;
     private Polyline currentPolyline;
+    private DatabaseHelper databaseHelper;
 
     public PetaFragment() {
     }
@@ -75,6 +72,7 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         binding = FragmentPetaBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
+        databaseHelper = new DatabaseHelper(requireContext());
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.map);
 
@@ -204,7 +202,17 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         });
 
         binding.buttonSimpan.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Disimpan ke daftar Simpan!", Toast.LENGTH_SHORT).show();
+            if (destinationLatLng == null) {
+                Toast.makeText(requireContext(), "Tentukan lokasi dulu!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            List<DatabaseHelper.Folder> folders = databaseHelper.getAllFolders();
+            if (folders.isEmpty()) {
+                Toast.makeText(requireContext(), "Buat folder dulu di menu Simpan!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            showSaveLocationDialog(folders);
         });
 
         binding.buttonCerita.setOnClickListener(v -> {
@@ -292,12 +300,10 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             binding.modeIcon.setImageResource(R.drawable.light_icon);
             binding.markerAddress.setTextColor(Color.WHITE);
             binding.alamatSingkat.setTextColor(Color.WHITE);
-//            binding.layerIcon.setImageResource(R.drawable.layer_icon);
         } else {
             binding.modeIcon.setImageResource(R.drawable.dark_icon);
             binding.markerAddress.setTextColor(Color.BLACK);
             binding.alamatSingkat.setTextColor(Color.BLACK);
-//            binding.layerIcon.setImageResource(R.drawable.layerr_icon);
         }
     }
 
@@ -320,6 +326,58 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void showSaveLocationDialog(List<DatabaseHelper.Folder> folders) {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_save_location, null);
+        builder.setView(dialogView);
+
+        android.widget.Spinner folderSpinner = dialogView.findViewById(R.id.folderSpinner);
+        android.widget.EditText titleInput = dialogView.findViewById(R.id.titleInput);
+        android.widget.EditText noteInput = dialogView.findViewById(R.id.noteInput);
+
+        List<String> folderNames = new ArrayList<>();
+        for (DatabaseHelper.Folder folder : folders) {
+            folderNames.add(folder.getNama_folder());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, folderNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        folderSpinner.setAdapter(adapter);
+
+        builder.setPositiveButton("Simpan", (dialog, which) -> {
+            int selectedFolderPosition = folderSpinner.getSelectedItemPosition();
+            DatabaseHelper.Folder selectedFolder = folders.get(selectedFolderPosition);
+
+            String title = titleInput.getText().toString().trim();
+            String note = noteInput.getText().toString().trim();
+
+            if (title.isEmpty()) {
+                Toast.makeText(requireContext(), "Judul wajib diisi!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            DatabaseHelper.SavedLocation savedLocation = new DatabaseHelper.SavedLocation();
+            savedLocation.setId_folder(selectedFolder.getId_folder());
+            savedLocation.setJudul(title);
+            savedLocation.setNote(note);
+            savedLocation.setLat(destinationLatLng.latitude);
+            savedLocation.setLng(destinationLatLng.longitude);
+            savedLocation.setAlamat(binding.markerAddress.getText().toString());
+
+            String tanggalSekarang = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+            savedLocation.setTanggal(tanggalSekarang);
+
+            long result = databaseHelper.insertSavedLocation(savedLocation);
+            if (result != -1) {
+                Toast.makeText(requireContext(), "Lokasi berhasil disimpan!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Gagal menyimpan lokasi.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Batal", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
     }
 
     private void searchLocation(String locationName) {
