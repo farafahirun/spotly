@@ -2,6 +2,7 @@ package com.example.spotly;
 
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,11 +56,11 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
     }
-//    public void hideBottomNav() {
-//        findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
-//    }
-//
-//    public void showBottomNav() {
-//        findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
-//    }
+    public void hideBottomNav() {
+        findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
+    }
+
+    public void showBottomNav() {
+        findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
+    }
 }

@@ -6,6 +6,7 @@
     <color name="light">#FAFAFA</color>
     <color name="dark">#131313</color>
     <color name="icon_on">#FEB800</color>
-    <color name="text_on">#757575</color>
+    <color name="utama_soft">#19FEB800</color>
+    <color name="text_on">#B3FEB800</color>
     <color name="bottom_off">#999898</color>
 </resources>

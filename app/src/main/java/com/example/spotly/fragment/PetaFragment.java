@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 
+import com.example.spotly.MainActivity;
 import com.example.spotly.R;
 
 import android.Manifest;
@@ -157,7 +158,40 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
 
         applyMapStyle();
 
-        mMap.setOnMapClickListener(latLng -> {
+//        mMap.setOnMapClickListener(latLng -> {
+//            destinationLatLng = latLng;
+//
+//            if (destinationMarker != null) destinationMarker.remove();
+//
+//            destinationMarker = mMap.addMarker(new MarkerOptions()
+//                    .position(latLng)
+//                    .title("Destination"));
+//
+//            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+//            try {
+//                List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+//                if (addresses != null && !addresses.isEmpty()) {
+//                    Address address = addresses.get(0);
+//                    String alamat = address.getAddressLine(0);
+//                    destinationMarker.setSnippet(alamat);
+//                    destinationMarker.showInfoWindow();
+//                } else {
+//                    destinationMarker.setSnippet("Alamat tidak ditemukan");
+//                    destinationMarker.showInfoWindow();
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                destinationMarker.setSnippet("Gagal mengambil alamat");
+//                destinationMarker.showInfoWindow();
+//            }
+//
+//            binding.route.setEnabled(true);
+//        });
+
+        mMap.setOnMapLongClickListener(latLng -> {
+            ((MainActivity) requireActivity()).hideBottomNav();
+            binding.fokusUser.setVisibility(View.GONE);
+            binding.route.setVisibility(View.GONE);
             destinationLatLng = latLng;
 
             if (destinationMarker != null) destinationMarker.remove();
@@ -172,19 +206,41 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
                 if (addresses != null && !addresses.isEmpty()) {
                     Address address = addresses.get(0);
                     String alamat = address.getAddressLine(0);
-                    destinationMarker.setSnippet(alamat);
-                    destinationMarker.showInfoWindow();
+
+                    binding.markerAddress.setText(alamat);
+                    binding.markerInfoPanel.setVisibility(View.VISIBLE);
                 } else {
-                    destinationMarker.setSnippet("Alamat tidak ditemukan");
-                    destinationMarker.showInfoWindow();
+                    binding.markerAddress.setText("Alamat tidak ditemukan");
+                    binding.markerInfoPanel.setVisibility(View.VISIBLE);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                destinationMarker.setSnippet("Gagal mengambil alamat");
-                destinationMarker.showInfoWindow();
+                binding.markerAddress.setText("Gagal mengambil alamat");
+                binding.markerInfoPanel.setVisibility(View.VISIBLE);
             }
+        });
 
-            binding.route.setEnabled(true);
+        binding.closePanel.setOnClickListener(v -> {
+            binding.markerInfoPanel.setVisibility(View.GONE);
+            binding.fokusUser.setVisibility(View.VISIBLE);
+            binding.route.setVisibility(View.VISIBLE);
+            ((MainActivity) requireActivity()).showBottomNav();
+        });
+
+        binding.buttonSimpan.setOnClickListener(v -> {
+            Toast.makeText(requireContext(), "Disimpan ke daftar Simpan!", Toast.LENGTH_SHORT).show();
+        });
+
+        binding.buttonCerita.setOnClickListener(v -> {
+            Toast.makeText(requireContext(), "Ditambahkan ke Cerita!", Toast.LENGTH_SHORT).show();
+        });
+
+        binding.buttonRute.setOnClickListener(v -> {
+            if (originLatLng != null && destinationLatLng != null) {
+                getRoute(originLatLng, destinationLatLng);
+            } else {
+                Toast.makeText(requireContext(), "Pilih tujuan terlebih dahulu.", Toast.LENGTH_SHORT).show();
+            }
         });
 
         binding.route.setOnClickListener(v -> {
@@ -273,9 +329,13 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         String currentTheme = ThemeHelper.getCurrentTheme(requireContext());
         if ("dark".equals(currentTheme)) {
             binding.modeIcon.setImageResource(R.drawable.light_icon);
+            binding.markerAddress.setTextColor(Color.WHITE);
+            binding.alamatSingkat.setTextColor(Color.WHITE);
 //            binding.layerIcon.setImageResource(R.drawable.layer_icon);
         } else {
             binding.modeIcon.setImageResource(R.drawable.dark_icon);
+            binding.markerAddress.setTextColor(Color.BLACK);
+            binding.alamatSingkat.setTextColor(Color.BLACK);
 //            binding.layerIcon.setImageResource(R.drawable.layerr_icon);
         }
     }

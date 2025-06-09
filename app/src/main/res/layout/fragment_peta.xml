@@ -20,8 +20,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
                 android:background="?android:attr/windowBackground"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="7dp">
 
@@ -39,8 +39,8 @@
                     android:id="@+id/mode_icon"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:layout_marginRight="15dp"
                     android:layout_marginTop="10dp"
+                    android:layout_marginRight="15dp"
                     android:layout_marginBottom="10dp"
                     android:clickable="true"
                     android:contentDescription="Toggle Theme"
@@ -48,11 +48,11 @@
             </LinearLayout>
         </LinearLayout>
 
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -63,26 +63,11 @@
             android:id="@+id/search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="80dp"
             android:layout_marginRight="15dp"
-            android:layout_marginLeft="15dp"
             android:background="@drawable/search_custom"
             app:layout_constraintTop_toTopOf="parent" />
-
-<!--        <com.google.android.material.card.MaterialCardView-->
-<!--            android:id="@+id/mode"-->
-<!--            android:layout_width="40dp"-->
-<!--            android:layout_height="40dp"-->
-<!--            android:layout_marginTop="20dp"-->
-<!--            android:layout_marginRight="15dp"-->
-<!--            app:cardBackgroundColor="?android:attr/windowBackground"-->
-<!--            app:cardCornerRadius="10dp"-->
-<!--            app:cardElevation="8dp"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/search">-->
-
-<!--            -->
-<!--        </com.google.android.material.card.MaterialCardView>-->
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/tipe_map"
@@ -92,9 +77,10 @@
             android:layout_marginRight="15dp"
             app:cardBackgroundColor="?android:attr/windowBackground"
             app:cardCornerRadius="10dp"
-            app:cardElevation="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/search">
+            app:layout_constraintTop_toBottomOf="@id/search"
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="0dp">
 
             <ImageView
                 android:id="@+id/layer_icon"
@@ -113,9 +99,10 @@
             android:layout_marginBottom="185dp"
             app:cardBackgroundColor="?android:attr/windowBackground"
             app:cardCornerRadius="30dp"
-            app:cardElevation="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="0dp">
 
             <ImageView
                 android:layout_width="23dp"
@@ -129,13 +116,14 @@
             android:id="@+id/route"
             android:layout_width="55dp"
             android:layout_height="55dp"
-            android:layout_marginRight="15dp"
             android:layout_marginTop="10dp"
+            android:layout_marginRight="15dp"
             app:cardBackgroundColor="?android:attr/windowBackground"
             app:cardCornerRadius="10dp"
-            app:cardElevation="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fokus_user">
+            app:layout_constraintTop_toBottomOf="@id/fokus_user"
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="0dp">
 
             <ImageView
                 android:layout_width="23dp"
@@ -143,6 +131,195 @@
                 android:layout_gravity="center"
                 android:layout_margin="1dp"
                 android:src="@drawable/route" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/marker_info_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            app:cardBackgroundColor="?android:attr/windowBackground"
+            app:cardCornerRadius="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+
+                    <TextView
+                        android:id="@+id/alamat_singkat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.8"
+                        android:text="Alamat Singkat"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/close_panel"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_weight="0.2"
+                        android:contentDescription="Close"
+                        android:src="@drawable/cancel" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/marker_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.8"
+                    android:text="Alamat di sini"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="43dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/button_rute"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="10dp"
+                        app:cardBackgroundColor="@color/utama"
+                        app:cardCornerRadius="20dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/search"
+                        app:strokeColor="@android:color/transparent"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="24dp"
+                            android:layout_marginRight="26dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/route"
+                                android:tint="?android:attr/windowBackground"
+                                tools:ignore="UseAppTint" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="8dp"
+                                android:layout_weight="0.8"
+                                android:text="Rute"
+                                android:textColor="?android:attr/windowBackground"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/button_simpan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="10dp"
+                        app:cardBackgroundColor="@color/utama_soft"
+                        app:cardCornerRadius="20dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/search"
+                        app:strokeColor="@android:color/transparent"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="24dp"
+                            android:layout_marginRight="26dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/simpan_off"
+                                android:tint="@color/utama"
+                                tools:ignore="UseAppTint" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="8dp"
+                                android:layout_weight="0.8"
+                                android:text="Simpan"
+                                android:textColor="@color/utama"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/button_cerita"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="10dp"
+                        app:cardBackgroundColor="@color/utama_soft"
+                        app:cardCornerRadius="20dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/search"
+                        app:strokeColor="@android:color/transparent"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="24dp"
+                            android:layout_marginRight="26dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/cerita_off"
+                                android:tint="@color/utama"
+                                tools:ignore="UseAppTint" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="8dp"
+                                android:layout_weight="0.8"
+                                android:text="Cerita"
+                                android:textColor="@color/utama"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
