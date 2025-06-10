@@ -20,7 +20,7 @@ import com.google.android.material.card.MaterialCardView;
 
 public class EditSavedLocationActivity extends AppCompatActivity {
 
-    private EditText editTitle, editNote;
+    private EditText editTitle;
     private TextView textAddress;
     private MaterialCardView buttonPickLocation, buttonSave;
     private DatabaseHelper databaseHelper;
@@ -35,7 +35,6 @@ public class EditSavedLocationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_saved_location);
 
         editTitle = findViewById(R.id.editTitle);
-        editNote = findViewById(R.id.editNote);
         textAddress = findViewById(R.id.textAddress);
         buttonPickLocation = findViewById(R.id.buttonPickLocation);
         buttonSave = findViewById(R.id.buttonSave);
@@ -76,7 +75,6 @@ public class EditSavedLocationActivity extends AppCompatActivity {
         SavedLocation location = databaseHelper.getLocationById(id);
         if (location != null) {
             editTitle.setText(location.getJudul());
-            editNote.setText(location.getNote());
             selectedLat = location.getLat();
             selectedLng = location.getLng();
             selectedAddress = location.getAlamat();
@@ -87,7 +85,6 @@ public class EditSavedLocationActivity extends AppCompatActivity {
     private void saveChanges() {
         String judul = editTitle.getText().toString().trim();
         String tanggal = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
-        String note = editNote.getText().toString().trim();
 
         boolean updated = databaseHelper.updateSavedLocation(
                 savedLocationId,
@@ -95,8 +92,7 @@ public class EditSavedLocationActivity extends AppCompatActivity {
                 tanggal,
                 selectedLat,
                 selectedLng,
-                selectedAddress,
-                note
+                selectedAddress
         );
 
         if (updated) {

@@ -1,5 +1,6 @@
 package com.example.spotly.fragment;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
@@ -25,6 +26,7 @@ import com.example.spotly.R;
 import android.Manifest;
 
 import com.example.spotly.ThemeHelper;
+import com.example.spotly.activity.FormCeritaActivity;
 import com.example.spotly.databinding.FragmentPetaBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -218,7 +220,16 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         });
 
         binding.buttonCerita.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Ditambahkan ke Cerita!", Toast.LENGTH_SHORT).show();
+            if (destinationLatLng == null) {
+                Toast.makeText(requireContext(), "Tentukan lokasi terlebih dahulu!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = new Intent(getContext(), FormCeritaActivity.class);
+            intent.putExtra("lat", destinationLatLng.latitude);
+            intent.putExtra("lng", destinationLatLng.longitude);
+            intent.putExtra("alamat", binding.markerAddress.getText().toString());
+            startActivity(intent);
         });
 
         binding.fokusUser.setOnClickListener(v -> {
@@ -278,7 +289,8 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
@@ -337,7 +349,6 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
 
         android.widget.Spinner folderSpinner = dialogView.findViewById(R.id.folderSpinner);
         android.widget.EditText titleInput = dialogView.findViewById(R.id.titleInput);
-        android.widget.EditText noteInput = dialogView.findViewById(R.id.noteInput);
 
         List<String> folderNames = new ArrayList<>();
         for (DatabaseHelper.Folder folder : folders) {
@@ -360,7 +371,6 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             DatabaseHelper.Folder selectedFolder = folders.get(selectedFolderPosition);
 
             String title = titleInput.getText().toString().trim();
-            String note = noteInput.getText().toString().trim();
 
             if (title.isEmpty()) {
                 Toast.makeText(requireContext(), "Judul wajib diisi!", Toast.LENGTH_SHORT).show();
@@ -370,7 +380,6 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             DatabaseHelper.SavedLocation savedLocation = new DatabaseHelper.SavedLocation();
             savedLocation.setId_folder(selectedFolder.getId_folder());
             savedLocation.setJudul(title);
-            savedLocation.setNote(note);
             savedLocation.setLat(destinationLatLng.latitude);
             savedLocation.setLng(destinationLatLng.longitude);
             savedLocation.setAlamat(binding.markerAddress.getText().toString());

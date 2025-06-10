@@ -46,7 +46,6 @@ public class SavedLocationAdapter extends RecyclerView.Adapter<SavedLocationAdap
         holder.titleTextView.setText(location.getJudul());
         holder.addressTextView.setText(location.getAlamat());
         holder.dateTextView.setText(location.getTanggal());
-        holder.noteTextView.setText(location.getNote());
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, MapViewActivity.class);
             intent.putExtra("latitude", location.getLat());
@@ -76,7 +75,7 @@ public class SavedLocationAdapter extends RecyclerView.Adapter<SavedLocationAdap
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView, addressTextView, dateTextView, noteTextView;
+        TextView titleTextView, addressTextView, dateTextView;
         ImageView deleteButton, editButton;
 
         public ViewHolder(@NonNull View itemView) {
@@ -84,7 +83,6 @@ public class SavedLocationAdapter extends RecyclerView.Adapter<SavedLocationAdap
             titleTextView = itemView.findViewById(R.id.textTitle);
             addressTextView = itemView.findViewById(R.id.textAddress);
             dateTextView = itemView.findViewById(R.id.textDate);
-            noteTextView = itemView.findViewById(R.id.textNote);
             deleteButton = itemView.findViewById(R.id.buttonDelete);
             editButton = itemView.findViewById(R.id.buttonEdit);
         }

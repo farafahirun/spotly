@@ -16,6 +16,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Spotly"
         tools:targetApi="31">
+
+        <activity
+            android:name=".activity.DetailCeritaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.FormCeritaActivity"
+            android:exported="false" />
         <activity
             android:name=".activity.MapsPickLocationActivity"
             android:exported="false" />
@@ -43,5 +50,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

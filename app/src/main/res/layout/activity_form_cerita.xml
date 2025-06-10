@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.FormCeritaActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Kategori -->
+        <EditText
+            android:id="@+id/etKategori"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Kategori"
+            android:inputType="text" />
+
+        <!-- Judul -->
+        <EditText
+            android:id="@+id/etJudul"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Judul"
+            android:inputType="text" />
+
+        <!-- Lokasi -->
+        <EditText
+            android:id="@+id/etLokasi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Alamat Lokasi"
+            android:inputType="text"
+            android:enabled="false" />
+
+        <!-- Icon Perasaan -->
+        <Spinner
+            android:id="@+id/spinnerIconPerasaan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Isi Cerita -->
+        <EditText
+            android:id="@+id/etIsi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Isi Cerita"
+            android:inputType="textMultiLine"
+            android:minHeight="100dp"
+            android:gravity="top" />
+
+        <!-- Simpan Button -->
+        <Button
+            android:id="@+id/btnSimpan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Simpan Cerita"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+</ScrollView>

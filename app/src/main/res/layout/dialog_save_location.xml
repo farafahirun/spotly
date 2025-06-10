@@ -93,28 +93,6 @@
                     android:textColor="@android:color/black"
                     android:textColorHint="@android:color/darker_gray"
                     android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Catatan"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/noteInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="80dp"
-                    android:background="@drawable/edittext"
-                    android:gravity="top|start"
-                    android:hint="Tambahkan catatan..."
-                    android:inputType="textMultiLine"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="12dp"
-                    android:textColor="@android:color/black"
-                    android:textColorHint="@android:color/darker_gray"
-                    android:textSize="15sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

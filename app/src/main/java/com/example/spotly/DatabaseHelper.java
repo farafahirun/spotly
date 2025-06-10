@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "spotly.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,10 +34,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "lat REAL NOT NULL, " +
                 "lng REAL NOT NULL, " +
                 "alamat TEXT NOT NULL, " +
-                "note TEXT, " +
                 "FOREIGN KEY(id_folder) REFERENCES Folder(id_folder) ON DELETE CASCADE" +
                 ")";
 
+        String createCeritaTable = "CREATE TABLE Cerita (" +
+                "id_cerita INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "kategori TEXT NOT NULL, " +
+                "icon_perasaan TEXT NOT NULL, " +
+                "judul TEXT NOT NULL, " +
+                "alamat TEXT NOT NULL, " + // Lokasi lengkap
+                "lat REAL, " + // Latitude
+                "lng REAL, " + // Longitude
+                "isi TEXT NOT NULL, " +
+                "tanggal TEXT NOT NULL" +
+                ")";
+
+        db.execSQL(createCeritaTable);
         db.execSQL(createFolderTable);
         db.execSQL(createSavedLocationTable);
     }
@@ -46,6 +58,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS SavedLocation");
         db.execSQL("DROP TABLE IF EXISTS Folder");
+        db.execSQL("DROP TABLE IF EXISTS Cerita");
         onCreate(db);
     }
 
@@ -103,7 +116,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public long insertSavedLocation(int id_folder, String judul, String tanggal, double lat, double lng, String alamat, String note) {
+    public long insertSavedLocation(int id_folder, String judul, String tanggal, double lat, double lng, String alamat) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("id_folder", id_folder);
@@ -112,7 +125,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("lat", lat);
         values.put("lng", lng);
         values.put("alamat", alamat);
-        values.put("note", note);
 
         long result = db.insert("SavedLocation", null, values);
         db.close();
@@ -126,8 +138,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 savedLocation.getTanggal(),
                 savedLocation.getLat(),
                 savedLocation.getLng(),
-                savedLocation.getAlamat(),
-                savedLocation.getNote()
+                savedLocation.getAlamat()
         );
     }
 
@@ -144,9 +155,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("lat"));
                 double lng = cursor.getDouble(cursor.getColumnIndexOrThrow("lng"));
                 String alamat = cursor.getString(cursor.getColumnIndexOrThrow("alamat"));
-                String note = cursor.getString(cursor.getColumnIndexOrThrow("note"));
 
-                locationList.add(new SavedLocation(id, id_folder, judul, tanggal, lat, lng, alamat, note));
+                locationList.add(new SavedLocation(id, id_folder, judul, tanggal, lat, lng, alamat));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -166,16 +176,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("lat"));
             double lng = cursor.getDouble(cursor.getColumnIndexOrThrow("lng"));
             String alamat = cursor.getString(cursor.getColumnIndexOrThrow("alamat"));
-            String note = cursor.getString(cursor.getColumnIndexOrThrow("note"));
 
-            location = new SavedLocation(id_location, id_folder, judul, tanggal, lat, lng, alamat, note);
+            location = new SavedLocation(id_location, id_folder, judul, tanggal, lat, lng, alamat);
         }
         cursor.close();
         db.close();
         return location;
     }
 
-    public boolean updateSavedLocation(int id_location, String judul, String tanggal, double lat, double lng, String alamat, String note) {
+    public boolean updateSavedLocation(int id_location, String judul, String tanggal, double lat, double lng, String alamat) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("judul", judul);
@@ -183,7 +192,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("lat", lat);
         values.put("lng", lng);
         values.put("alamat", alamat);
-        values.put("note", note);
 
         int result = db.update("SavedLocation", values, "id_location = ?", new String[]{String.valueOf(id_location)});
         db.close();
@@ -193,6 +201,90 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean deleteSavedLocation(int id_location) {
         SQLiteDatabase db = this.getWritableDatabase();
         int result = db.delete("SavedLocation", "id_location = ?", new String[]{String.valueOf(id_location)});
+        db.close();
+        return result > 0;
+    }
+
+    public long insertCerita(String kategori, String icon_perasaan, String judul, double lat, double lng, String alamat, String isi, String tanggal) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("kategori", kategori);
+        values.put("icon_perasaan", icon_perasaan);
+        values.put("judul", judul);
+        values.put("lat", lat);
+        values.put("lng", lng);
+        values.put("alamat", alamat);
+        values.put("isi", isi);
+        values.put("tanggal", tanggal);
+
+        long result = db.insert("Cerita", null, values);
+        db.close();
+        return result;
+    }
+
+    public long insertCerita(Cerita cerita) {
+        return insertCerita(
+                cerita.getKategori(),
+                cerita.getIcon_perasaan(),
+                cerita.getJudul(),
+                cerita.getLat(),
+                cerita.getLng(),
+                cerita.getAlamat(),
+                cerita.getIsi(),
+                cerita.getTanggal()
+        );
+    }
+
+    public List<Cerita> getAllCerita() {
+        List<Cerita> ceritaList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM Cerita ORDER BY id_cerita DESC", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id_cerita = cursor.getInt(cursor.getColumnIndexOrThrow("id_cerita"));
+                String kategori = cursor.getString(cursor.getColumnIndexOrThrow("kategori"));
+                String icon_perasaan = cursor.getString(cursor.getColumnIndexOrThrow("icon_perasaan"));
+                String judul = cursor.getString(cursor.getColumnIndexOrThrow("judul"));
+                double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("lat"));
+                double lng = cursor.getDouble(cursor.getColumnIndexOrThrow("lng"));
+                String alamat = cursor.getString(cursor.getColumnIndexOrThrow("alamat"));
+                String isi = cursor.getString(cursor.getColumnIndexOrThrow("isi"));
+                String tanggal = cursor.getString(cursor.getColumnIndexOrThrow("tanggal"));
+
+                ceritaList.add(new Cerita(id_cerita, kategori, icon_perasaan, judul, lat, lng, alamat, isi, tanggal));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return ceritaList;
+    }
+
+    public Cerita getCeritaById(int id_cerita) {
+        Cerita cerita = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM Cerita WHERE id_cerita = ?", new String[]{String.valueOf(id_cerita)});
+
+        if (cursor.moveToFirst()) {
+            String kategori = cursor.getString(cursor.getColumnIndexOrThrow("kategori"));
+            String icon_perasaan = cursor.getString(cursor.getColumnIndexOrThrow("icon_perasaan"));
+            String judul = cursor.getString(cursor.getColumnIndexOrThrow("judul"));
+            double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("lat"));
+            double lng = cursor.getDouble(cursor.getColumnIndexOrThrow("lng"));
+            String alamat = cursor.getString(cursor.getColumnIndexOrThrow("alamat"));
+            String isi = cursor.getString(cursor.getColumnIndexOrThrow("isi"));
+            String tanggal = cursor.getString(cursor.getColumnIndexOrThrow("tanggal"));
+
+            cerita = new Cerita(id_cerita, kategori, icon_perasaan, judul, lat, lng, alamat, isi, tanggal);
+        }
+        cursor.close();
+        db.close();
+        return cerita;
+    }
+
+    public boolean deleteCerita(int id_cerita) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.delete("Cerita", "id_cerita = ?", new String[]{String.valueOf(id_cerita)});
         db.close();
         return result > 0;
     }
@@ -224,12 +316,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public double lat;
         public double lng;
         public String alamat;
-        public String note;
 
         public SavedLocation() {
         }
 
-        public SavedLocation(int id_location, int id_folder, String judul, String tanggal, double lat, double lng, String alamat, String note) {
+        public SavedLocation(int id_location, int id_folder, String judul, String tanggal, double lat, double lng, String alamat) {
             this.id_location = id_location;
             this.id_folder = id_folder;
             this.judul = judul;
@@ -237,7 +328,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             this.lat = lat;
             this.lng = lng;
             this.alamat = alamat;
-            this.note = note;
         }
 
         public int getId_location() {
@@ -295,13 +385,101 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public void setAlamat(String alamat) {
             this.alamat = alamat;
         }
+    }
 
-        public String getNote() {
-            return note;
+    public static class Cerita {
+        public int id_cerita;
+        public String kategori;
+        public String icon_perasaan;
+        public String judul;
+        public double lat;
+        public double lng;
+        public String alamat;
+        public String isi;
+        public String tanggal;
+
+        public int getId_cerita() {
+            return id_cerita;
         }
 
-        public void setNote(String note) {
-            this.note = note;
+        public void setId_cerita(int id_cerita) {
+            this.id_cerita = id_cerita;
+        }
+
+        public String getKategori() {
+            return kategori;
+        }
+
+        public void setKategori(String kategori) {
+            this.kategori = kategori;
+        }
+
+        public String getIcon_perasaan() {
+            return icon_perasaan;
+        }
+
+        public void setIcon_perasaan(String icon_perasaan) {
+            this.icon_perasaan = icon_perasaan;
+        }
+
+        public String getJudul() {
+            return judul;
+        }
+
+        public void setJudul(String judul) {
+            this.judul = judul;
+        }
+
+        public double getLat() {
+            return lat;
+        }
+
+        public void setLat(double lat) {
+            this.lat = lat;
+        }
+
+        public double getLng() {
+            return lng;
+        }
+
+        public void setLng(double lng) {
+            this.lng = lng;
+        }
+
+        public String getAlamat() {
+            return alamat;
+        }
+
+        public void setAlamat(String alamat) {
+            this.alamat = alamat;
+        }
+
+        public String getIsi() {
+            return isi;
+        }
+
+        public void setIsi(String isi) {
+            this.isi = isi;
+        }
+
+        public String getTanggal() {
+            return tanggal;
+        }
+
+        public void setTanggal(String tanggal) {
+            this.tanggal = tanggal;
+        }
+
+        public Cerita(int id_cerita, String kategori, String icon_perasaan, String judul, double lat, double lng, String alamat, String isi, String tanggal) {
+            this.id_cerita = id_cerita;
+            this.kategori = kategori;
+            this.icon_perasaan = icon_perasaan;
+            this.judul = judul;
+            this.lat = lat;
+            this.lng = lng;
+            this.alamat = alamat;
+            this.isi = isi;
+            this.tanggal = tanggal;
         }
     }
 }

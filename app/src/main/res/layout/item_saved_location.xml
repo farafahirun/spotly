@@ -50,14 +50,6 @@
             android:text="alamat lengkap"
             android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/textNote"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:text="Catatan tambahan"
-            android:textSize="14sp" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
