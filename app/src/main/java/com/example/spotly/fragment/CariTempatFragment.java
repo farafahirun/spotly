@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -32,7 +31,6 @@ import com.example.spotly.model.PlaceResult;
 import com.example.spotly.network.ApiService;
 import com.example.spotly.network.NominatimApiClient;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -40,20 +38,15 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CariTempatFragment extends Fragment implements PencarianAdapter.OnItemClickListener {
-
     private SearchView searchView;
     private RecyclerView recyclerView;
     private PencarianAdapter adapter;
     private ProgressBar progressBar;
     private TextView tvInfo;
-
-    // Komponen UI Baru
     private LinearLayout infoLayout;
     private ImageView btnRefresh;
-
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
-
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
     private String lastFailedQuery = null;
@@ -74,7 +67,6 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
         setupSearchView();
         setupNetworkCallback();
 
-        // Tambahkan listener untuk tombol refresh manual
         btnRefresh.setOnClickListener(v -> {
             if (lastFailedQuery != null && !lastFailedQuery.isEmpty()) {
                 performSearch(lastFailedQuery);
@@ -151,7 +143,6 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
         });
     }
 
-    // Metode showInfo diubah untuk menerima parameter kedua
     private void showInfo(String message, boolean showRefreshButton) {
         recyclerView.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
@@ -160,13 +151,13 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
         btnRefresh.setVisibility(showRefreshButton ? View.VISIBLE : View.GONE);
     }
 
-    // ... (Sisa kode lain seperti onItemClick, setupRecyclerView, showLoading, dll. tetap sama)
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new PencarianAdapter(getContext());
         adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
     }
+
     private void setupSearchView() {
         showInfo("Ketik nama tempat untuk memulai pencarian.", false);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

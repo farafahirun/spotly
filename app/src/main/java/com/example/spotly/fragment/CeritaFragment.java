@@ -28,19 +28,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CeritaFragment extends Fragment {
-
     private RecyclerView recyclerView;
     private CeritaAdapter adapter;
     private DatabaseHelper dbHelper;
     private List<DatabaseHelper.Cerita> allCeritaList;
     private SearchView searchView;
     private ProgressBar progressBar;
-
-    // Komponen untuk Empty State yang lebih baik
     private View emptyViewContainer;
     private TextView emptyViewTitle, emptyViewSubtitle;
-
-    // Komponen untuk Filter Emoji
     private LinearLayout emojiContainer;
     private String selectedEmojiFilter = "Semua";
     private List<Button> emojiButtons = new ArrayList<>();
@@ -51,7 +46,6 @@ public class CeritaFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_cerita, container, false);
 
-        // Inisialisasi semua View
         recyclerView = view.findViewById(R.id.recyclerViewCerita);
         searchView = view.findViewById(R.id.searchViewCerita);
         emojiContainer = view.findViewById(R.id.emoji_filter_container);
@@ -59,7 +53,6 @@ public class CeritaFragment extends Fragment {
         emptyViewContainer = view.findViewById(R.id.emptyViewCerita);
         emptyViewTitle = view.findViewById(R.id.emptyViewCerita_title);
         emptyViewSubtitle = view.findViewById(R.id.emptyViewCerita_subtitle);
-
         dbHelper = new DatabaseHelper(getContext());
         allCeritaList = new ArrayList<>();
 
@@ -73,7 +66,6 @@ public class CeritaFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Selalu muat data terbaru setiap kali fragment ditampilkan
         loadCerita();
     }
 
@@ -88,19 +80,15 @@ public class CeritaFragment extends Fragment {
     }
 
     private void loadCerita() {
-        // Tampilkan ProgressBar saat data sedang dimuat dari database
         progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
         emptyViewContainer.setVisibility(View.GONE);
 
-        // Ambil data di background thread
         AppExecutors.getInstance().diskIO().execute(() -> {
             allCeritaList = dbHelper.getAllCerita();
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    // Sembunyikan ProgressBar setelah selesai
                     progressBar.setVisibility(View.GONE);
-                    // Panggil filterCerita untuk memproses dan menampilkan data atau empty state
                     filterCerita();
                 });
             }
@@ -127,12 +115,10 @@ public class CeritaFragment extends Fragment {
             }
         }
 
-        // Logika untuk menampilkan RecyclerView atau Empty State
         if (filteredList.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyViewContainer.setVisibility(View.VISIBLE);
 
-            // Cek apakah ini karena filter atau karena database memang kosong
             if (allCeritaList.isEmpty()) {
                 emptyViewTitle.setText("Buat Cerita Pertamamu");
                 emptyViewSubtitle.setText("Setiap tempat punya kenangan. Tulis ceritamu sekarang!");
@@ -147,8 +133,6 @@ public class CeritaFragment extends Fragment {
 
         adapter.updateList(filteredList);
     }
-
-    // --- Sisa metode untuk setup UI (tidak ada perubahan) ---
 
     private void setupEmojiFilterButtons() {
         String[] emojis = {"Semua", "😊", "😢", "😠", "😲", "❤️", "🤔"};
@@ -195,6 +179,7 @@ public class CeritaFragment extends Fragment {
                 filterCerita();
                 return false;
             }
+
             @Override
             public boolean onQueryTextChange(String newText) {
                 filterCerita();

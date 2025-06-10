@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardBackgroundColor="?android:attr/windowBackground"
+    app:cardCornerRadius="15dp"
     app:strokeColor="@android:color/transparent"
-    app:strokeWidth="0dp"
-    app:cardCornerRadius="15dp">
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -78,10 +78,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none" />
-
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Title Input -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

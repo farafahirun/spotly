@@ -25,7 +25,6 @@ import java.util.List;
 
 public class SavedLocationAdapter extends RecyclerView.Adapter<SavedLocationAdapter.ViewHolder> {
 
-    // 1. Definisikan Interface
     public interface SavedLocationAdapterListener {
         void onLocationDeleted();
     }
@@ -33,9 +32,8 @@ public class SavedLocationAdapter extends RecyclerView.Adapter<SavedLocationAdap
     private List<DatabaseHelper.SavedLocation> savedLocationList;
     private Context context;
     private DatabaseHelper databaseHelper;
-    private SavedLocationAdapterListener listener; // 2. Tambahkan variabel listener
+    private SavedLocationAdapterListener listener;
 
-    // 3. Ubah konstruktor untuk menerima listener
     public SavedLocationAdapter(List<DatabaseHelper.SavedLocation> savedLocationList, Context context, DatabaseHelper databaseHelper, SavedLocationAdapterListener listener) {
         this.savedLocationList = savedLocationList;
         this.context = context;
@@ -84,8 +82,6 @@ public class SavedLocationAdapter extends RecyclerView.Adapter<SavedLocationAdap
                                     notifyItemRemoved(position);
                                     notifyItemRangeChanged(position, savedLocationList.size());
                                     Toast.makeText(context, "Lokasi dihapus", Toast.LENGTH_SHORT).show();
-
-                                    // 4. Panggil listener setelah item dihapus
                                     if (listener != null) {
                                         listener.onLocationDeleted();
                                     }
@@ -103,18 +99,21 @@ public class SavedLocationAdapter extends RecyclerView.Adapter<SavedLocationAdap
             context.startActivity(intent);
         });
 
-        // Listener untuk tombol "pindah ke cerita" tidak berubah
-        // ...
+        holder.buatCeritaButton.setOnClickListener(v -> {
+            Intent intent = new Intent(context, FormCeritaActivity.class);
+            intent.putExtra("prefill_judul", location.getJudul());
+            intent.putExtra("prefill_alamat", location.getAlamat());
+            intent.putExtra("prefill_lat", location.getLat());
+            intent.putExtra("prefill_lng", location.getLng());
+            intent.putExtra("saved_location_id_to_delete", location.getId_location());
+            intent.putExtra("show_map", true);
+            context.startActivity(intent);
+        });
     }
 
     @Override
     public int getItemCount() {
         return savedLocationList.size();
-    }
-
-    public void setData(List<DatabaseHelper.SavedLocation> newLocationList){
-        this.savedLocationList = newLocationList;
-        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

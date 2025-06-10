@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="?android:attr/windowBackground"
+    android:orientation="vertical"
     tools:context=".activity.DetailCeritaActivity">
 
     <LinearLayout
@@ -25,11 +25,12 @@
             <ImageView
                 android:id="@+id/kembali_simpan"
                 android:layout_width="25dp"
-                android:layout_marginLeft="15dp"
                 android:layout_height="25dp"
+                android:layout_marginLeft="15dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:src="@drawable/kembali" />
+
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -74,7 +75,7 @@
                     android:id="@+id/map_progress_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"/>
+                    android:layout_gravity="center" />
 
             </FrameLayout>
 
@@ -93,19 +94,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    tools:text="Menikmati Senja di Pantai Losari"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="24sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="Menikmati Senja di Pantai Losari" />
 
                 <TextView
                     android:id="@+id/tvTanggalDetail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    tools:text="10 Juni 2025"
                     android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:text="10 Juni 2025" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -118,11 +119,11 @@
                         android:id="@+id/tvKategoriDetail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Travel"
-                        android:textSize="17sp"
-                        android:textColor="@color/white"
                         android:background="@drawable/category_bg"
-                        android:padding="8dp" />
+                        android:padding="8dp"
+                        android:text="Travel"
+                        android:textColor="@color/white"
+                        android:textSize="17sp" />
 
                 </LinearLayout>
 
@@ -149,9 +150,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lineSpacingExtra="5dp"
-                    tools:text="Ini adalah isi cerita yang akan ditampilkan di sini. Dengan menempatkan peta di atas, pengguna langsung mendapatkan konteks visual sebelum membaca ceritanya. Penggunaan chip juga membuat metadata terlihat lebih modern dan terstruktur."
                     android:textColor="?android:attr/textColorPrimary"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    tools:text="Ini adalah isi cerita yang akan ditampilkan di sini. Dengan menempatkan peta di atas, pengguna langsung mendapatkan konteks visual sebelum membaca ceritanya. Penggunaan chip juga membuat metadata terlihat lebih modern dan terstruktur." />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

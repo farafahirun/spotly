@@ -5,15 +5,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.os.Bundle;
-import android.widget.ImageView;
+
 import androidx.appcompat.widget.SearchView;
+
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -31,7 +30,6 @@ import com.google.android.material.card.MaterialCardView;
 import java.util.List;
 
 public class MapsPickLocationActivity extends AppCompatActivity implements OnMapReadyCallback {
-
     private GoogleMap mMap;
     private LatLng selectedLatLng;
     private String selectedAddress = "";
@@ -41,17 +39,13 @@ public class MapsPickLocationActivity extends AppCompatActivity implements OnMap
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps_pick_location);
-
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
         SearchView searchView = (SearchView) findViewById(R.id.search);
         MaterialCardView buttonFocusUser = findViewById(R.id.fokus_user).findViewById(R.id.fokus_user);
-
-        // Listener untuk SearchView
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -65,10 +59,8 @@ public class MapsPickLocationActivity extends AppCompatActivity implements OnMap
             }
         });
 
-        // Listener untuk tombol user location
         findViewById(R.id.fokus_user).setOnClickListener(v -> focusToUserLocation());
 
-        // Listener untuk tombol pilih lokasi
         findViewById(R.id.btnSelectLocation).setOnClickListener(v -> {
             if (selectedLatLng == null) {
                 Toast.makeText(this, "Pilih lokasi dengan tap di peta", Toast.LENGTH_SHORT).show();
@@ -124,7 +116,6 @@ public class MapsPickLocationActivity extends AppCompatActivity implements OnMap
         });
     }
 
-    // Function: Search lokasi
     private void searchLocation(String query) {
         Geocoder geocoder = new Geocoder(this);
         try {
@@ -145,7 +136,6 @@ public class MapsPickLocationActivity extends AppCompatActivity implements OnMap
         }
     }
 
-    // Function: Fokus ke lokasi user
     private void focusToUserLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -164,7 +154,6 @@ public class MapsPickLocationActivity extends AppCompatActivity implements OnMap
         }
     }
 
-    // Request permission launcher
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted && mMap != null) {

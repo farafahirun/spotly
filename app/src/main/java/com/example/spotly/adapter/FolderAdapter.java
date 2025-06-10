@@ -3,13 +3,14 @@ package com.example.spotly.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -24,9 +25,6 @@ import java.util.List;
 
 public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder> {
 
-    /**
-     * Interface untuk komunikasi dari Adapter ke Fragment.
-     */
     public interface FolderAdapterListener {
         void onFolderDeleted();
     }
@@ -34,14 +32,8 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
     private List<DatabaseHelper.Folder> folderList;
     private Context context;
     private DatabaseHelper databaseHelper;
-    private FolderAdapterListener listener; // Variabel untuk listener
+    private FolderAdapterListener listener;
 
-    /**
-     * Konstruktor diubah untuk menerima listener dari Fragment.
-     * @param folderList List data folder.
-     * @param context Context dari activity/fragment.
-     * @param listener Implementasi listener (biasanya fragment itu sendiri).
-     */
     public FolderAdapter(List<DatabaseHelper.Folder> folderList, Context context, FolderAdapterListener listener) {
         this.folderList = folderList;
         this.context = context;
@@ -49,10 +41,6 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
         this.listener = listener;
     }
 
-    /**
-     * Metode untuk memperbarui data dari fragment.
-     * @param newFolderList Daftar folder yang baru.
-     */
     public void setData(List<DatabaseHelper.Folder> newFolderList) {
         this.folderList = newFolderList;
         notifyDataSetChanged();
@@ -69,28 +57,20 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
     public void onBindViewHolder(@NonNull FolderViewHolder holder, int position) {
         DatabaseHelper.Folder folder = folderList.get(position);
         holder.txtFolderName.setText(folder.nama_folder);
-
-        // Mengambil jumlah file juga operasi I/O, jalankan di background
         AppExecutors.getInstance().diskIO().execute(() -> {
             int fileCount = databaseHelper.getFileCountInFolder(folder.getId_folder());
             if (context instanceof Activity) {
                 ((Activity) context).runOnUiThread(() -> {
-                    if (fileCount == 0) {
-                        holder.jumlah_file.setText("Kosong");
-                    } else {
-                        holder.jumlah_file.setText(fileCount + " file");
-                    }
+                    if (fileCount == 0) holder.jumlah_file.setText("Kosong");
+                    else holder.jumlah_file.setText(fileCount + " file");
                 });
             }
         });
-
-        // Klik item untuk membuka isi folder
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, SavedLocationActivity.class);
             intent.putExtra("folder_id", folder.getId_folder());
             context.startActivity(intent);
         });
-
         holder.btnEdit.setOnClickListener(v -> showEditDialog(folder, position));
         holder.btnDelete.setOnClickListener(v -> showDeleteDialog(folder, position));
     }
@@ -102,27 +82,50 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
 
     private void showEditDialog(DatabaseHelper.Folder folder, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Edit Nama Folder");
-        final EditText input = new EditText(context);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        input.setText(folder.nama_folder);
-        builder.setView(input);
-        builder.setPositiveButton("Simpan", (dialog, which) -> {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View dialogView = inflater.inflate(R.layout.dialog_folder_input, null);
+        builder.setView(dialogView);
+
+        final TextView dialogTitle = dialogView.findViewById(R.id.dialog_title);
+        final EditText input = dialogView.findViewById(R.id.input_folder_name);
+        final Button btnBatal = dialogView.findViewById(R.id.btn_batal);
+        final Button btnSimpan = dialogView.findViewById(R.id.btn_simpan);
+
+        dialogTitle.setText("Edit Nama Folder");
+        input.setText(folder.getNama_folder());
+        btnSimpan.setText("Update");
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        btnSimpan.setOnClickListener(v -> {
             String newName = input.getText().toString().trim();
-            if (!newName.isEmpty()) {
-                AppExecutors.getInstance().diskIO().execute(() -> {
+            if (newName.isEmpty()) {
+                Toast.makeText(context, "Nama folder tidak boleh kosong.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                boolean exists = databaseHelper.folderExists(newName, folder.getId_folder());
+                if (exists) {
+                    if (context instanceof Activity) {
+                        ((Activity) context).runOnUiThread(() -> Toast.makeText(context, "Nama folder '" + newName + "' sudah ada.", Toast.LENGTH_SHORT).show());
+                    }
+                } else {
                     databaseHelper.updateFolder(folder.getId_folder(), newName);
                     if (context instanceof Activity) {
                         ((Activity) context).runOnUiThread(() -> {
                             folder.nama_folder = newName;
                             notifyItemChanged(position);
+                            dialog.dismiss();
                         });
                     }
-                });
-            }
+                }
+            });
         });
-        builder.setNegativeButton("Batal", (dialog, which) -> dialog.cancel());
-        builder.show();
+        btnBatal.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
     private void showDeleteDialog(final DatabaseHelper.Folder folder, final int position) {
@@ -137,11 +140,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
                                 folderList.remove(position);
                                 notifyItemRemoved(position);
                                 notifyItemRangeChanged(position, folderList.size());
-
-                                // Panggil listener untuk memberitahu fragment bahwa item telah dihapus
-                                if (listener != null) {
-                                    listener.onFolderDeleted();
-                                }
+                                if (listener != null) listener.onFolderDeleted();
                             });
                         }
                     });
@@ -153,6 +152,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
     public class FolderViewHolder extends RecyclerView.ViewHolder {
         TextView txtFolderName, jumlah_file;
         ImageView btnEdit, btnDelete;
+
         public FolderViewHolder(@NonNull View itemView) {
             super(itemView);
             txtFolderName = itemView.findViewById(R.id.txtFolderName);

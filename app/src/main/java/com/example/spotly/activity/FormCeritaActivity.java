@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class FormCeritaActivity extends AppCompatActivity {
-
     private EditText etKategori, etJudul, etIsi, tvAlamat;
     private MaterialCardView cardViewSimpan;
     private TextView tvButtonSimpan, tvJudulForm;
@@ -61,8 +59,7 @@ public class FormCeritaActivity extends AppCompatActivity {
         } else if (savedLocationIdToDelete != -1) {
             tvJudulForm.setText("Buat Cerita dari Lokasi");
             prefillFromSavedLocation();
-        }
-        else {
+        } else {
             tvJudulForm.setText("Tambah Cerita");
             lat = getIntent().getDoubleExtra("lat", 0.0);
             lng = getIntent().getDoubleExtra("lng", 0.0);
@@ -93,7 +90,6 @@ public class FormCeritaActivity extends AppCompatActivity {
         kembaliSimpan = findViewById(R.id.kembali_simpan);
         cardViewSimpan = findViewById(R.id.Simpan);
         tvButtonSimpan = findViewById(R.id.btnSimpan);
-
         tvAlamat.setFocusable(false);
         tvAlamat.setClickable(false);
     }
@@ -110,16 +106,11 @@ public class FormCeritaActivity extends AppCompatActivity {
     }
 
     private void simpanAtauUpdateCerita() {
-        // =======================================================
-        //      TAMBAHKAN PENGECEKAN KONEKSI DI SINI
-        // =======================================================
         if (!isNetworkAvailable()) {
             Toast.makeText(this, "Tidak ada koneksi internet. Gagal menyimpan cerita.", Toast.LENGTH_LONG).show();
-            return; // Hentikan proses jika offline
+            return;
         }
-        // =======================================================
 
-        // Proses penyimpanan akan lanjut jika online
         String kategori = etKategori.getText().toString().trim();
         String judul = etJudul.getText().toString().trim();
         String isi = etIsi.getText().toString().trim();

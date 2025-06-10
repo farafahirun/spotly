@@ -2,7 +2,6 @@ package com.example.spotly.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -12,18 +11,18 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.spotly.AppExecutors;
 import com.example.spotly.DatabaseHelper;
 import com.example.spotly.R;
-import com.example.spotly.DatabaseHelper.SavedLocation;
 import com.google.android.material.card.MaterialCardView;
 
 public class EditSavedLocationActivity extends AppCompatActivity {
-
     private EditText editTitle;
     private TextView textAddress;
     private MaterialCardView buttonPickLocation, buttonSave;
     private DatabaseHelper databaseHelper;
     private int savedLocationId;
+    private int folderId; // Simpan ID folder untuk validasi
     private double selectedLat, selectedLng;
     private String selectedAddress;
     private ImageView kembali_simpan;
@@ -60,14 +59,19 @@ public class EditSavedLocationActivity extends AppCompatActivity {
     }
 
     private void loadSavedLocation(int id) {
-        SavedLocation location = databaseHelper.getLocationById(id);
-        if (location != null) {
-            editTitle.setText(location.getJudul());
-            selectedLat = location.getLat();
-            selectedLng = location.getLng();
-            selectedAddress = location.getAlamat();
-            textAddress.setText(selectedAddress);
-        }
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            DatabaseHelper.SavedLocation location = databaseHelper.getLocationById(id);
+            runOnUiThread(() -> {
+                if (location != null) {
+                    editTitle.setText(location.getJudul());
+                    folderId = location.getId_folder(); // Simpan folder ID
+                    selectedLat = location.getLat();
+                    selectedLng = location.getLng();
+                    selectedAddress = location.getAlamat();
+                    textAddress.setText(selectedAddress);
+                }
+            });
+        });
     }
 
     private void saveChanges() {
@@ -77,21 +81,30 @@ public class EditSavedLocationActivity extends AppCompatActivity {
             return;
         }
 
-        boolean updated = databaseHelper.updateSavedLocation(
-                savedLocationId,
-                judul,
-                selectedLat,
-                selectedLng,
-                selectedAddress
-        );
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            boolean exists = databaseHelper.savedLocationTitleExists(judul, folderId, savedLocationId);
 
-        if (updated) {
-            Toast.makeText(this, "Lokasi berhasil diperbarui", Toast.LENGTH_SHORT).show();
-            setResult(RESULT_OK); // Memberi sinyal ke activity sebelumnya bahwa ada perubahan
-            finish();
-        } else {
-            Toast.makeText(this, "Gagal memperbarui lokasi", Toast.LENGTH_SHORT).show();
-        }
+            if (exists) {
+                runOnUiThread(() -> Toast.makeText(this, "Judul '" + judul + "' sudah ada di folder ini.", Toast.LENGTH_SHORT).show());
+            } else {
+                boolean updated = databaseHelper.updateSavedLocation(
+                        savedLocationId,
+                        judul,
+                        selectedLat,
+                        selectedLng,
+                        selectedAddress
+                );
+
+                runOnUiThread(() -> {
+                    if (updated) {
+                        Toast.makeText(this, "Lokasi berhasil diperbarui", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(this, "Gagal memperbarui lokasi", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 
     private final ActivityResultLauncher<Intent> pickLocationLauncher = registerForActivityResult(
@@ -101,7 +114,6 @@ public class EditSavedLocationActivity extends AppCompatActivity {
                     selectedLat = result.getData().getDoubleExtra("lat", 0);
                     selectedLng = result.getData().getDoubleExtra("lng", 0);
                     selectedAddress = result.getData().getStringExtra("alamat");
-
                     textAddress.setText(selectedAddress);
                     Toast.makeText(this, "Lokasi diubah", Toast.LENGTH_SHORT).show();
                 }

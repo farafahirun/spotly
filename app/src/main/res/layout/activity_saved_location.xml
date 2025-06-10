@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="?android:attr/windowBackground"
+    android:orientation="vertical"
     tools:context=".activity.SavedLocationActivity">
 
     <LinearLayout
@@ -30,9 +30,9 @@
         android:id="@+id/recyclerViewSavedLocation"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp"
         android:layout_marginBottom="60dp"
-        android:clipToPadding="false"/>
+        android:clipToPadding="false"
+        android:padding="8dp" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -42,33 +42,33 @@
             android:id="@+id/emptyViewSavedLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_gravity="center"
             android:gravity="center"
+            android:orientation="vertical"
             android:visibility="gone"
             tools:visibility="visible">
 
             <ImageView
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:src="@drawable/empty"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/empty" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Belum Ada Lokasi Tersimpan"
+                android:textColor="@color/utama"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/utama"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Lokasi yang kamu simpan di folder ini akan muncul di sini."
-                android:textColor="?android:attr/textColorSecondary"
                 android:gravity="center"
-                android:paddingHorizontal="40dp"/>
+                android:paddingHorizontal="40dp"
+                android:text="Lokasi yang kamu simpan di folder ini akan muncul di sini."
+                android:textColor="?android:attr/textColorSecondary" />
         </LinearLayout>
 
         <ProgressBar

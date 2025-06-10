@@ -3,102 +3,100 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
     android:layout_marginLeft="8dp"
+    android:layout_marginTop="4dp"
     android:layout_marginRight="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
+    android:layout_marginBottom="4dp"
+    android:background="?android:attr/windowBackground"
     android:clickable="true"
     android:focusable="true"
-    android:background="?android:attr/windowBackground">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:orientation="vertical">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- Icon dengan Background Lingkaran -->
-        <TextView
-            android:id="@+id/tvIcon"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/circle_bg"
-            android:gravity="center"
-            android:text="😊"
-            android:textSize="30sp" />
-
-        <!-- Content Container -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <!-- Judul -->
             <TextView
-                android:id="@+id/tvJudul"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Judul Cerita"
-                android:textStyle="bold"
-                android:textSize="24sp"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:layout_marginBottom="4dp" />
+                android:id="@+id/tvIcon"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/circle_bg"
+                android:gravity="center"
+                android:text="😊"
+                android:textSize="30sp" />
 
-            <!-- Kategori dengan Background -->
-            <TextView
-                android:id="@+id/tvKategori"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Travel"
-                android:textSize="17sp"
-                android:textColor="@color/white"
-                android:background="@drawable/category_bg"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp"
-                android:layout_marginBottom="6dp" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <!-- Lokasi dengan Icon -->
-            <TextView
-                android:id="@+id/tvLokasi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="📍 Alamat Lengkap"
-                android:textSize="17sp"
-                android:textColor="#757575"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:drawablePadding="4dp" />
+                <TextView
+                    android:id="@+id/tvJudul"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:text="Judul Cerita"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/tvKategori"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:background="@drawable/category_bg"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="Travel"
+                    android:textColor="@color/white"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/tvLokasi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="4dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="📍 Alamat Lengkap"
+                    android:textColor="#757575"
+                    android:textSize="17sp" />
+            </LinearLayout>
         </LinearLayout>
-        </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:orientation="horizontal">
-        <ImageView
-            android:id="@+id/buttonEditCerita"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:padding="4dp"
-            android:layout_marginRight="10dp"
-            android:src="@drawable/edit" />
 
-        <ImageView
-            android:id="@+id/buttonDeleteCerita"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:padding="4dp"
-            android:src="@drawable/hapus" />
-    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/buttonEditCerita"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginRight="10dp"
+                android:padding="4dp"
+                android:src="@drawable/edit" />
+
+            <ImageView
+                android:id="@+id/buttonDeleteCerita"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:padding="4dp"
+                android:src="@drawable/hapus" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -68,7 +68,6 @@ public class CeritaAdapter extends RecyclerView.Adapter<CeritaAdapter.CeritaView
                     .setTitle("Hapus Cerita")
                     .setMessage("Yakin ingin menghapus cerita '" + cerita.getJudul() + "'?")
                     .setPositiveButton("Hapus", (dialog, which) -> {
-                        // Tampilkan loading di fragment
                         if (context instanceof Activity) {
                             ProgressBar progressBar = ((Activity) context).findViewById(R.id.progressBarCerita);
                             if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
@@ -77,28 +76,24 @@ public class CeritaAdapter extends RecyclerView.Adapter<CeritaAdapter.CeritaView
                         AppExecutors.getInstance().diskIO().execute(() -> {
                             dbHelper.deleteCerita(cerita.getId_cerita());
                             ((Activity) context).runOnUiThread(() -> {
-                                // Hapus item dari list dan update RecyclerView
                                 ceritaList.remove(position);
                                 notifyItemRemoved(position);
                                 notifyItemRangeChanged(position, ceritaList.size());
                                 Toast.makeText(context, "Cerita dihapus", Toast.LENGTH_SHORT).show();
 
-                                // Sembunyikan loading dan cek jika list menjadi kosong
                                 if (context instanceof Activity) {
                                     ProgressBar progressBar = ((Activity) context).findViewById(R.id.progressBarCerita);
                                     if (progressBar != null) progressBar.setVisibility(View.GONE);
-
-                                    // Periksa jika ini adalah item terakhir
-                                    if(ceritaList.isEmpty()){
-                                        // Gunakan 'View' karena ID 'emptyViewCerita' adalah LinearLayout
+                                    if (ceritaList.isEmpty()) {
                                         View emptyViewContainer = ((Activity) context).findViewById(R.id.emptyViewCerita);
-                                        if(emptyViewContainer != null) {
+                                        if (emptyViewContainer != null) {
                                             emptyViewContainer.setVisibility(View.VISIBLE);
-                                            // Set teks kembali ke default "belum ada cerita"
                                             TextView emptyTitle = emptyViewContainer.findViewById(R.id.emptyViewCerita_title);
                                             TextView emptySubtitle = emptyViewContainer.findViewById(R.id.emptyViewCerita_subtitle);
-                                            if(emptyTitle != null) emptyTitle.setText("Buat Cerita Pertamamu");
-                                            if(emptySubtitle != null) emptySubtitle.setText("Setiap tempat punya kenangan. Tulis ceritamu sekarang!");
+                                            if (emptyTitle != null)
+                                                emptyTitle.setText("Buat Cerita Pertamamu");
+                                            if (emptySubtitle != null)
+                                                emptySubtitle.setText("Setiap tempat punya kenangan. Tulis ceritamu sekarang!");
                                         }
                                     }
                                 }
@@ -124,6 +119,7 @@ public class CeritaAdapter extends RecyclerView.Adapter<CeritaAdapter.CeritaView
     static class CeritaViewHolder extends RecyclerView.ViewHolder {
         TextView tvJudul, tvKategori, tvLokasi, tvIcon;
         ImageView btnEdit, btnDelete;
+
         public CeritaViewHolder(@NonNull View itemView) {
             super(itemView);
             tvJudul = itemView.findViewById(R.id.tvJudul);

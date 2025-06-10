@@ -6,36 +6,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.example.spotly.R;
 import com.example.spotly.model.PlaceResult;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class PencarianAdapter extends RecyclerView.Adapter<PencarianAdapter.ViewHolder> {
-    private List<PlaceResult> results = new ArrayList<>(); // Langsung diinisialisasi
+    private List<PlaceResult> results = new ArrayList<>();
     private Context context;
     private OnItemClickListener listener;
 
-    // Interface untuk listener klik
     public interface OnItemClickListener {
         void onItemClick(PlaceResult placeResult);
     }
 
-    /**
-     * KONSTRUKTOR DIPERBAIKI:
-     * Sekarang hanya butuh Context. List dan Listener di-set terpisah.
-     */
     public PencarianAdapter(Context context) {
         this.context = context;
     }
 
-    /**
-     * METODE SET LISTENER BARU:
-     * Ini akan menyelesaikan error 'Cannot resolve method'.
-     */
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
@@ -53,7 +47,8 @@ public class PencarianAdapter extends RecyclerView.Adapter<PencarianAdapter.View
         }
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_hasil_pencarian, parent, false);
         return new ViewHolder(view);
@@ -66,11 +61,14 @@ public class PencarianAdapter extends RecyclerView.Adapter<PencarianAdapter.View
     }
 
     @Override
-    public int getItemCount() { return results.size(); }
+    public int getItemCount() {
+        return results.size();
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivIcon;
         TextView tvDisplayName, tvType;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivIcon = itemView.findViewById(R.id.ivPlaceIcon);
@@ -84,12 +82,12 @@ public class PencarianAdapter extends RecyclerView.Adapter<PencarianAdapter.View
 
             Glide.with(itemView.getContext())
                     .load(place.getIconUrl())
-                    .placeholder(R.drawable.pin) // Pastikan drawable ini ada
+                    .placeholder(R.drawable.pin)
                     .error(R.drawable.pin)
                     .into(ivIcon);
 
             itemView.setOnClickListener(v -> {
-                if(listener != null) {
+                if (listener != null) {
                     listener.onItemClick(place);
                 }
             });

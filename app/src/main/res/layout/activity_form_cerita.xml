@@ -52,9 +52,9 @@
                 android:id="@+id/tvJudulForm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:text="Tambah Cerita"
                 android:textSize="28sp"
-                android:layout_marginTop="10dp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -83,14 +83,14 @@
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:scrollbars="none"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="16dp"
+                    android:scrollbars="none">
 
                     <LinearLayout
                         android:id="@+id/emoji_input_container"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"/>
+                        android:orientation="horizontal" />
                 </HorizontalScrollView>
 
                 <TextView

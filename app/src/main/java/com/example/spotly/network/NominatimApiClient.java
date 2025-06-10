@@ -4,7 +4,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NominatimApiClient {
-    // BASE URL untuk API Nominatim OpenStreetMap
     private static final String BASE_URL = "https://nominatim.openstreetmap.org/";
     private static Retrofit retrofit = null;
 

@@ -23,8 +23,8 @@
             android:layout_width="37dp"
             android:layout_height="37dp"
             android:layout_marginEnd="16dp"
-            android:tint="@color/utama"
             android:src="@drawable/pin"
+            android:tint="@color/utama"
             tools:ignore="UseAppTint" />
 
         <LinearLayout

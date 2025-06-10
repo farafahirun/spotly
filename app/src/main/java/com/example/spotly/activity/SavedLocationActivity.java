@@ -17,9 +17,6 @@ import com.example.spotly.adapter.SavedLocationAdapter;
 
 import java.util.List;
 
-/**
- * Activity sekarang mengimplementasikan listener dari adapternya
- */
 public class SavedLocationActivity extends AppCompatActivity implements SavedLocationAdapter.SavedLocationAdapterListener {
     private RecyclerView recyclerView;
     private SavedLocationAdapter adapter;
@@ -67,8 +64,6 @@ public class SavedLocationActivity extends AppCompatActivity implements SavedLoc
                 } else {
                     recyclerView.setVisibility(View.VISIBLE);
                     emptyView.setVisibility(View.GONE);
-
-                    // --- PERBAIKAN DI SINI: Panggilan konstruktor disesuaikan ---
                     adapter = new SavedLocationAdapter(savedLocationList, this, databaseHelper, this);
                     recyclerView.setAdapter(adapter);
                 }
@@ -82,13 +77,8 @@ public class SavedLocationActivity extends AppCompatActivity implements SavedLoc
         loadSavedLocations();
     }
 
-    /**
-     * Implementasi metode dari interface.
-     * Akan dipanggil oleh adapter setelah lokasi dihapus.
-     */
     @Override
     public void onLocationDeleted() {
-        // Cek apakah daftar sekarang kosong
         if (adapter != null && adapter.getItemCount() == 0) {
             emptyView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);

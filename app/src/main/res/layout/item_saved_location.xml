@@ -61,11 +61,11 @@
                 android:id="@+id/buttonBuatCerita"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:src="@drawable/cerita_on"
                 android:layout_marginEnd="25dp"
-                android:tint="@color/utama"
-                android:contentDescription="Buat Cerita"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Buat Cerita"
+                android:src="@drawable/cerita_on"
+                android:tint="@color/utama"
                 tools:ignore="UseAppTint" />
 
             <ImageView

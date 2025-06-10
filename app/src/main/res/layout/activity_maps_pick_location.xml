@@ -79,11 +79,11 @@
             android:id="@+id/btnSelectLocation"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginRight="15dp"
             android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="40dp"
             app:cardBackgroundColor="@color/utama"
             app:cardCornerRadius="10dp"
-            android:layout_marginBottom="40dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:strokeColor="@android:color/transparent"
             app:strokeWidth="0dp">
@@ -107,9 +107,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:text="Pilih lokasi ini"
-                    android:textStyle="bold"
                     android:textColor="?android:attr/windowBackground"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>

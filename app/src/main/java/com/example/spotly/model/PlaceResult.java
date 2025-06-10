@@ -22,11 +22,27 @@ public class PlaceResult {
     @SerializedName("icon")
     private String iconUrl;
 
-    // Getters
-    public long getPlaceId() { return placeId; }
-    public String getDisplayName() { return displayName; }
-    public String getLatitude() { return latitude; }
-    public String getLongitude() { return longitude; }
-    public String getType() { return type; }
-    public String getIconUrl() { return iconUrl; }
+    public long getPlaceId() {
+        return placeId;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
 }

@@ -42,7 +42,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="15dp"
                     android:layout_marginBottom="10dp"
-                    android:src="@drawable/tambah"/>
+                    android:src="@drawable/tambah" />
             </LinearLayout>
         </LinearLayout>
 
@@ -50,45 +50,45 @@
             android:id="@+id/recyclerViewFolder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp"
             android:layout_marginBottom="60dp"
-            android:clipToPadding="false"/>
+            android:clipToPadding="false"
+            android:padding="8dp" />
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_marginTop="150dp"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginTop="150dp">
 
             <LinearLayout
                 android:id="@+id/emptyViewSimpan"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:layout_gravity="center"
                 android:gravity="center"
+                android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="120dp"
                     android:layout_height="120dp"
-                    android:src="@drawable/empty"
-                    android:layout_marginBottom="16dp"/>
+                    android:layout_marginBottom="16dp"
+                    android:src="@drawable/empty" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Belum Ada Folder"
+                    android:textColor="@color/utama"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/utama"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="Klik tombol + untuk membuat folder pertamamu."
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:gravity="center"/>
+                    android:textColor="?android:attr/textColorSecondary" />
             </LinearLayout>
 
             <ProgressBar
@@ -96,8 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:visibility="gone"/>
-
+                android:visibility="gone" />
         </FrameLayout>
-</LinearLayout>
+    </LinearLayout>
 </LinearLayout>

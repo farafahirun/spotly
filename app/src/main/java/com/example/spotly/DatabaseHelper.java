@@ -15,7 +15,6 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "spotly.db";
-    // Versi database dinaikkan untuk menerapkan perubahan skema (tambah kolom)
     private static final int DATABASE_VERSION = 6;
 
     public DatabaseHelper(Context context) {
@@ -52,7 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "lng REAL, " +
                 "isi TEXT NOT NULL, " +
                 "tanggal TEXT NOT NULL, " +
-                "has_map_view INTEGER DEFAULT 1 NOT NULL" + // Kolom baru untuk penanda peta
+                "has_map_view INTEGER DEFAULT 1 NOT NULL" +
                 ")";
 
         db.execSQL(createFolderTable);
@@ -62,15 +61,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Untuk development, cara termudah adalah drop dan create ulang.
-        // Data lama akan hilang.
         db.execSQL("DROP TABLE IF EXISTS SavedLocation");
         db.execSQL("DROP TABLE IF EXISTS Folder");
         db.execSQL("DROP TABLE IF EXISTS Cerita");
         onCreate(db);
     }
 
-    // ================== FOLDER OPERATIONS ==================
     public long insertFolder(String nama_folder) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -122,6 +118,58 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return count;
+    }
+
+    public boolean folderExists(String folderName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM Folder WHERE UPPER(nama_folder) = UPPER(?)";
+        Cursor cursor = db.rawQuery(query, new String[]{folderName});
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int count = cursor.getInt(0);
+            cursor.close();
+            return count > 0;
+        }
+        return false;
+    }
+
+    public boolean folderExists(String folderName, int currentFolderIdToIgnore) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM Folder WHERE UPPER(nama_folder) = UPPER(?) AND id_folder != ?";
+        Cursor cursor = db.rawQuery(query, new String[]{folderName, String.valueOf(currentFolderIdToIgnore)});
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int count = cursor.getInt(0);
+            cursor.close();
+            return count > 0;
+        }
+        return false;
+    }
+
+    public boolean savedLocationTitleExists(String title, int folderId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM SavedLocation WHERE UPPER(judul) = UPPER(?) AND id_folder = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{title, String.valueOf(folderId)});
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int count = cursor.getInt(0);
+            cursor.close();
+            return count > 0;
+        }
+        return false;
+    }
+
+    public boolean savedLocationTitleExists(String title, int folderId, int currentLocationIdToIgnore) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM SavedLocation WHERE UPPER(judul) = UPPER(?) AND id_folder = ? AND id_location != ?";
+        Cursor cursor = db.rawQuery(query, new String[]{title, String.valueOf(folderId), String.valueOf(currentLocationIdToIgnore)});
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int count = cursor.getInt(0);
+            cursor.close();
+            return count > 0;
+        }
+        return false;
     }
 
 
@@ -361,6 +409,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public String getAlamat() { return alamat; }
         public String getIsi() { return isi; }
         public String getTanggal() { return tanggal; }
-        public boolean hasMapView() { return hasMapView; } // Getter untuk field baru
+        public boolean hasMapView() { return hasMapView; }
     }
 }

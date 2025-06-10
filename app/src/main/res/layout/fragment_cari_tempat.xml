@@ -53,9 +53,9 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:layout_marginTop="50dp"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/infoLayout"
@@ -79,10 +79,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:textColor="@color/utama"
-                    android:textStyle="bold"
                     android:paddingHorizontal="16dp"
-                    android:text="Pesan Info" />
+                    android:text="Pesan Info"
+                    android:textColor="@color/utama"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <ProgressBar
