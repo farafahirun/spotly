@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.spotly.AppExecutors;
@@ -129,7 +130,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
     }
 
     private void showDeleteDialog(final DatabaseHelper.Folder folder, final int position) {
-        new AlertDialog.Builder(context)
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle("Hapus Folder")
                 .setMessage("Apakah Anda yakin ingin menghapus folder '" + folder.getNama_folder() + "'? Semua lokasi di dalamnya juga akan terhapus.")
                 .setPositiveButton("Hapus", (dialog, which) -> {
@@ -140,13 +141,27 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
                                 folderList.remove(position);
                                 notifyItemRemoved(position);
                                 notifyItemRangeChanged(position, folderList.size());
-                                if (listener != null) listener.onFolderDeleted();
+                                if (listener != null) {
+                                    listener.onFolderDeleted();
+                                }
                             });
                         }
                     });
                 })
-                .setNegativeButton("Batal", null)
-                .show();
+                .setNegativeButton("Batal", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (positiveButton != null) {
+                positiveButton.setTextColor(ContextCompat.getColor(context, R.color.red_destructive));
+            }
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            if (negativeButton != null) {
+                negativeButton.setTextColor(ContextCompat.getColor(context, R.color.utama));
+            }
+        });
+        dialog.show();
     }
 
     public class FolderViewHolder extends RecyclerView.ViewHolder {

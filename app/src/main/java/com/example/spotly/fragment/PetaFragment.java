@@ -108,30 +108,46 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
     private void getAddressFromApi(LatLng latLng) {
         binding.markerInfoPanel.setVisibility(View.VISIBLE);
         binding.alamatSingkat.setText("Mencari alamat...");
-        binding.markerAddress.setText("");
+        binding.markerAddress.setVisibility(View.GONE);
         binding.buttonRefreshAlamat.setVisibility(View.GONE);
+        binding.closePanel.setVisibility(View.VISIBLE);
+
+        if (!isNetworkAvailable()) {
+            binding.alamatSingkat.setText("Gagal Terhubung");
+            binding.markerAddress.setVisibility(View.GONE);
+            binding.buttonRefreshAlamat.setVisibility(View.VISIBLE);
+            return;
+        }
+
         new Thread(() -> {
             try {
                 if (getContext() == null) return;
                 Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
-                List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    if (addresses != null && !addresses.isEmpty()) {
-                        String fullAddress = addresses.get(0).getAddressLine(0);
-                        binding.alamatSingkat.setText(extractSimpleAddress(fullAddress));
-                        binding.markerAddress.setText(fullAddress);
-                    } else {
-                        binding.alamatSingkat.setText("Gagal Mendapatkan Alamat");
-                        binding.markerAddress.setText("Tidak ada alamat ditemukan untuk lokasi ini.");
-                        binding.buttonRefreshAlamat.setVisibility(View.VISIBLE);
-                    }
-                });
+                final List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+
+                if(getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (addresses != null && !addresses.isEmpty()) {
+                            String fullAddress = addresses.get(0).getAddressLine(0);
+                            binding.alamatSingkat.setText(extractSimpleAddress(fullAddress));
+                            binding.markerAddress.setText(fullAddress);
+                            binding.markerAddress.setVisibility(View.VISIBLE);
+                            binding.buttonRefreshAlamat.setVisibility(View.GONE);
+                        } else {
+                            binding.alamatSingkat.setText("Alamat Tidak Ditemukan");
+                            binding.markerAddress.setVisibility(View.GONE);
+                            binding.buttonRefreshAlamat.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
             } catch (IOException e) {
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    binding.alamatSingkat.setText("Gagal Terhubung");
-                    binding.markerAddress.setText("Periksa koneksi internet Anda.");
-                    binding.buttonRefreshAlamat.setVisibility(View.VISIBLE);
-                });
+                if(getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        binding.alamatSingkat.setText("Gagal Terhubung");
+                        binding.markerAddress.setVisibility(View.GONE);
+                        binding.buttonRefreshAlamat.setVisibility(View.VISIBLE);
+                    });
+                }
             }
         }).start();
     }

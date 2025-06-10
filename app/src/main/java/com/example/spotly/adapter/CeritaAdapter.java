@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.spotly.AppExecutors;
@@ -64,9 +65,10 @@ public class CeritaAdapter extends RecyclerView.Adapter<CeritaAdapter.CeritaView
         });
 
         holder.btnDelete.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
+            AlertDialog.Builder builder = new AlertDialog.Builder(context)
                     .setTitle("Hapus Cerita")
                     .setMessage("Yakin ingin menghapus cerita '" + cerita.getJudul() + "'?")
+                    .setNegativeButton("Batal", null)
                     .setPositiveButton("Hapus", (dialog, which) -> {
                         if (context instanceof Activity) {
                             ProgressBar progressBar = ((Activity) context).findViewById(R.id.progressBarCerita);
@@ -75,15 +77,16 @@ public class CeritaAdapter extends RecyclerView.Adapter<CeritaAdapter.CeritaView
 
                         AppExecutors.getInstance().diskIO().execute(() -> {
                             dbHelper.deleteCerita(cerita.getId_cerita());
-                            ((Activity) context).runOnUiThread(() -> {
-                                ceritaList.remove(position);
-                                notifyItemRemoved(position);
-                                notifyItemRangeChanged(position, ceritaList.size());
-                                Toast.makeText(context, "Cerita dihapus", Toast.LENGTH_SHORT).show();
+                            if (context instanceof Activity) {
+                                ((Activity) context).runOnUiThread(() -> {
+                                    ceritaList.remove(position);
+                                    notifyItemRemoved(position);
+                                    notifyItemRangeChanged(position, ceritaList.size());
+                                    Toast.makeText(context, "Cerita dihapus", Toast.LENGTH_SHORT).show();
 
-                                if (context instanceof Activity) {
                                     ProgressBar progressBar = ((Activity) context).findViewById(R.id.progressBarCerita);
                                     if (progressBar != null) progressBar.setVisibility(View.GONE);
+
                                     if (ceritaList.isEmpty()) {
                                         View emptyViewContainer = ((Activity) context).findViewById(R.id.emptyViewCerita);
                                         if (emptyViewContainer != null) {
@@ -96,12 +99,16 @@ public class CeritaAdapter extends RecyclerView.Adapter<CeritaAdapter.CeritaView
                                                 emptySubtitle.setText("Setiap tempat punya kenangan. Tulis ceritamu sekarang!");
                                         }
                                     }
-                                }
-                            });
+                                });
+                            }
                         });
-                    })
-                    .setNegativeButton("Batal", null)
-                    .show();
+                    });
+            AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(dialogInterface -> {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(context, R.color.red_destructive));
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(context, R.color.utama));
+            });
+            dialog.show();
         });
     }
 

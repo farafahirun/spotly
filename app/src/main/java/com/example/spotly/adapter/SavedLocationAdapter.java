@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.spotly.AppExecutors;
@@ -70,9 +71,10 @@ public class SavedLocationAdapter extends RecyclerView.Adapter<SavedLocationAdap
         });
 
         holder.deleteButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
+            AlertDialog.Builder builder = new AlertDialog.Builder(context)
                     .setTitle("Hapus Lokasi")
                     .setMessage("Apakah Anda yakin ingin menghapus lokasi '" + location.getJudul() + "'?")
+                    .setNegativeButton("Batal", null)
                     .setPositiveButton("Hapus", (dialog, which) -> {
                         AppExecutors.getInstance().diskIO().execute(() -> {
                             databaseHelper.deleteSavedLocation(location.getId_location());
@@ -88,9 +90,14 @@ public class SavedLocationAdapter extends RecyclerView.Adapter<SavedLocationAdap
                                 });
                             }
                         });
-                    })
-                    .setNegativeButton("Batal", null)
-                    .show();
+                    });
+
+            AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(dialogInterface -> {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(context, R.color.red_destructive));
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(context, R.color.utama));
+            });
+            dialog.show();
         });
 
         holder.editButton.setOnClickListener(v -> {
