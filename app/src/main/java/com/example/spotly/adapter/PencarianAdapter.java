@@ -11,22 +11,33 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.spotly.R;
 import com.example.spotly.model.PlaceResult;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PencarianAdapter extends RecyclerView.Adapter<PencarianAdapter.ViewHolder> {
-    private List<PlaceResult> results;
+    private List<PlaceResult> results = new ArrayList<>(); // Langsung diinisialisasi
     private Context context;
-    private OnItemClickListener listener; // <-- Listener baru
+    private OnItemClickListener listener;
 
     // Interface untuk listener klik
     public interface OnItemClickListener {
         void onItemClick(PlaceResult placeResult);
     }
 
-    public PencarianAdapter(List<PlaceResult> results, Context context, OnItemClickListener listener) {
-        this.results = results;
+    /**
+     * KONSTRUKTOR DIPERBAIKI:
+     * Sekarang hanya butuh Context. List dan Listener di-set terpisah.
+     */
+    public PencarianAdapter(Context context) {
         this.context = context;
-        this.listener = listener; // <-- Inisialisasi listener
+    }
+
+    /**
+     * METODE SET LISTENER BARU:
+     * Ini akan menyelesaikan error 'Cannot resolve method'.
+     */
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 
     public void setData(List<PlaceResult> newResults) {
@@ -38,7 +49,6 @@ public class PencarianAdapter extends RecyclerView.Adapter<PencarianAdapter.View
         int size = results.size();
         if (size > 0) {
             results.clear();
-            // Memberitahu RecyclerView bahwa item telah dihapus
             notifyItemRangeRemoved(0, size);
         }
     }
@@ -52,7 +62,7 @@ public class PencarianAdapter extends RecyclerView.Adapter<PencarianAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         PlaceResult place = results.get(position);
-        holder.bind(place, listener); // <-- Panggil metode bind
+        holder.bind(place, listener);
     }
 
     @Override
@@ -68,19 +78,21 @@ public class PencarianAdapter extends RecyclerView.Adapter<PencarianAdapter.View
             tvType = itemView.findViewById(R.id.tvPlaceType);
         }
 
-        // Metode untuk bind data dan set listener
         public void bind(final PlaceResult place, final OnItemClickListener listener) {
             tvDisplayName.setText(place.getDisplayName());
             tvType.setText(place.getType().replace('_', ' '));
 
             Glide.with(itemView.getContext())
                     .load(place.getIconUrl())
-                    .placeholder(R.drawable.pin)
+                    .placeholder(R.drawable.pin) // Pastikan drawable ini ada
                     .error(R.drawable.pin)
                     .into(ivIcon);
 
-            // Set OnClickListener pada seluruh item view
-            itemView.setOnClickListener(v -> listener.onItemClick(place));
+            itemView.setOnClickListener(v -> {
+                if(listener != null) {
+                    listener.onItemClick(place);
+                }
+            });
         }
     }
 }

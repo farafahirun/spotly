@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="8dp"
@@ -58,12 +59,14 @@
 
             <ImageView
                 android:id="@+id/buttonBuatCerita"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/layerr_icon"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/cerita_on"
                 android:layout_marginEnd="25dp"
+                android:tint="@color/utama"
                 android:contentDescription="Buat Cerita"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
+                android:background="?attr/selectableItemBackgroundBorderless"
+                tools:ignore="UseAppTint" />
 
             <ImageView
                 android:id="@+id/buttonEdit"

@@ -1,18 +1,22 @@
 package com.example.spotly.fragment;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -26,6 +30,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.spotly.AppExecutors;
 import com.example.spotly.DatabaseHelper;
 import com.example.spotly.MainActivity;
 import com.example.spotly.R;
@@ -42,6 +47,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.card.MaterialCardView;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -61,29 +67,7 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
     private Marker destinationMarker = null;
     private boolean isFirstLoad = true;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Menyiapkan PetaFragment untuk menerima hasil dari CariTempatFragment
-        getParentFragmentManager().setFragmentResultListener(CariTempatFragment.REQUEST_KEY, this, (requestKey, bundle) -> {
-            String latStr = bundle.getString(CariTempatFragment.KEY_LAT);
-            String lonStr = bundle.getString(CariTempatFragment.KEY_LON);
-            String name = bundle.getString(CariTempatFragment.KEY_NAME);
-
-            if (latStr != null && lonStr != null) {
-                try {
-                    double lat = Double.parseDouble(latStr);
-                    double lon = Double.parseDouble(lonStr);
-                    LatLng selectedLocation = new LatLng(lat, lon);
-                    // Panggil metode terpusat untuk menampilkan lokasi dari hasil pencarian
-                    handleSelectedLocation(selectedLocation, name);
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getContext(), "Format lokasi tidak valid.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
+    // Tidak ada lagi metode onCreate() di sini
 
     @Nullable
     @Override
@@ -91,7 +75,7 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         ThemeHelper.applyTheme(requireContext());
         binding = FragmentPetaBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        databaseHelper = new DatabaseHelper(requireContext());
+        databaseHelper = new DatabaseHelper(getContext());
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -108,27 +92,19 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         applyMapStyle();
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setOnMapLongClickListener(latLng -> {
-            // Panggil metode terpusat saat pengguna menekan lama peta
             handleSelectedLocation(latLng, "Lokasi Dipilih");
         });
         checkLocationPermission();
     }
 
-    /**
-     * Metode terpusat untuk menangani lokasi yang dipilih, baik dari peta maupun dari hasil pencarian.
-     */
     private void handleSelectedLocation(LatLng location, String title) {
         if (mMap == null || getActivity() == null) return;
-
         ((MainActivity) requireActivity()).hideBottomNav();
         binding.fokusUser.setVisibility(View.GONE);
         destinationLatLng = location;
-
         if (destinationMarker != null) destinationMarker.remove();
         destinationMarker = mMap.addMarker(new MarkerOptions().position(location).title(title));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
-
-        // Panggil metode 'palsu' yang menggunakan Geocoder di background
         getAddressFromApi(location);
     }
 
@@ -137,19 +113,16 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
         binding.alamatSingkat.setText("Mencari alamat...");
         binding.markerAddress.setText("");
         binding.buttonRefreshAlamat.setVisibility(View.GONE);
-
         new Thread(() -> {
             try {
                 if (getContext() == null) return;
                 Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
                 List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-
                 new Handler(Looper.getMainLooper()).post(() -> {
                     if (addresses != null && !addresses.isEmpty()) {
                         String fullAddress = addresses.get(0).getAddressLine(0);
                         binding.alamatSingkat.setText(extractSimpleAddress(fullAddress));
                         binding.markerAddress.setText(fullAddress);
-                        binding.buttonRefreshAlamat.setVisibility(View.GONE);
                     } else {
                         binding.alamatSingkat.setText("Gagal Mendapatkan Alamat");
                         binding.markerAddress.setText("Tidak ada alamat ditemukan untuk lokasi ini.");
@@ -159,14 +132,12 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
             } catch (IOException e) {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     binding.alamatSingkat.setText("Gagal Terhubung");
-                    binding.markerAddress.setText("Geocoder memerlukan koneksi internet.");
+                    binding.markerAddress.setText("Periksa koneksi internet Anda.");
                     binding.buttonRefreshAlamat.setVisibility(View.VISIBLE);
-                    e.printStackTrace();
                 });
             }
         }).start();
     }
-
     private void setupListeners() {
         binding.modeIcon.setOnClickListener(v -> {
             String currentTheme = ThemeHelper.getCurrentTheme(requireContext());
@@ -296,43 +267,105 @@ public class PetaFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void showSaveLocationDialog(List<DatabaseHelper.Folder> folders) {
+        // 1. Setup dasar untuk AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_save_location, null);
         builder.setView(dialogView);
-        android.widget.Spinner folderSpinner = dialogView.findViewById(R.id.folderSpinner);
+
+        // 2. Inisialisasi view di dalam dialog, termasuk AutoCompleteTextView baru
+        android.widget.AutoCompleteTextView autoCompleteFolder = dialogView.findViewById(R.id.autoCompleteFolder);
         android.widget.EditText titleInput = dialogView.findViewById(R.id.titleInput);
+        ImageView closePanel = dialogView.findViewById(R.id.close_panel);
+        MaterialCardView buttonSave = dialogView.findViewById(R.id.buttonSave);
+
+        // 3. Siapkan data dan adapter untuk dropdown menu
         List<String> folderNames = new ArrayList<>();
-        for (DatabaseHelper.Folder folder : folders) folderNames.add(folder.getNama_folder());
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, folderNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        folderSpinner.setAdapter(adapter);
-        AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        for (DatabaseHelper.Folder folder : folders) {
+            folderNames.add(folder.getNama_folder());
+        }
+        // Menggunakan layout kustom dropdown_menu_item.xml
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_menu_item, folderNames);
+        autoCompleteFolder.setAdapter(adapter);
+
+        // 4. Buat variabel untuk menyimpan folder yang dipilih pengguna
+        final DatabaseHelper.Folder[] selectedFolder = new DatabaseHelper.Folder[1];
+        selectedFolder[0] = null; // Inisialisasi sebagai null
+
+        // Listener untuk saat pengguna memilih item dari daftar dropdown
+        autoCompleteFolder.setOnItemClickListener((parent, view, position, id) -> {
+            selectedFolder[0] = folders.get(position);
+        });
+
+        // 5. Buat dan tampilkan dialog
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
         dialog.show();
-        dialogView.findViewById(R.id.close_panel).setOnClickListener(v -> dialog.dismiss());
-        dialogView.findViewById(R.id.buttonSave).setOnClickListener(v -> {
-            int selectedFolderPosition = folderSpinner.getSelectedItemPosition();
-            if (selectedFolderPosition < 0) {
-                Toast.makeText(requireContext(), "Pilih folder dulu!", Toast.LENGTH_SHORT).show();
-                return;
+
+        // 6. Atur listener untuk tombol tutup dan simpan
+        closePanel.setOnClickListener(v -> dialog.dismiss());
+
+        buttonSave.setOnClickListener(v -> {
+            // Pengecekan koneksi internet sebelum menyimpan
+            if (!isNetworkAvailable()) {
+                Toast.makeText(getContext(), "Tidak ada koneksi internet. Gagal menyimpan lokasi.", Toast.LENGTH_LONG).show();
+                return; // Hentikan proses
             }
+
+            // Validasi input dari pengguna
             String title = titleInput.getText().toString().trim();
             if (title.isEmpty()) {
-                Toast.makeText(requireContext(), "Judul wajib diisi!", Toast.LENGTH_SHORT).show();
+                titleInput.setError("Judul wajib diisi");
                 return;
             }
-            DatabaseHelper.Folder selectedFolder = folders.get(selectedFolderPosition);
+            if (selectedFolder[0] == null) {
+                Toast.makeText(requireContext(), "Pilih folder dulu!", Toast.LENGTH_SHORT).show();
+                // Jika Anda menggunakan TextInputLayout, Anda bisa set error di sana
+                // TextInputLayout folderLayout = dialogView.findViewById(R.id.folderMenu);
+                // folderLayout.setError("Pilih folder dulu!");
+                return;
+            }
+
+            // Siapkan data untuk disimpan
             DatabaseHelper.SavedLocation savedLocation = new DatabaseHelper.SavedLocation();
-            savedLocation.setId_folder(selectedFolder.getId_folder());
+            savedLocation.setId_folder(selectedFolder[0].getId_folder());
             savedLocation.setJudul(title);
             savedLocation.setLat(destinationLatLng.latitude);
             savedLocation.setLng(destinationLatLng.longitude);
             savedLocation.setAlamat(binding.markerAddress.getText().toString());
-            savedLocation.setTanggalCreate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
-            databaseHelper.insertSavedLocation(savedLocation);
-            Toast.makeText(requireContext(), "Lokasi berhasil disimpan!", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
+            String tanggalSekarang = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+            savedLocation.setTanggalCreate(tanggalSekarang);
+
+            // Jalankan proses penyimpanan di background thread
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                long result = databaseHelper.insertSavedLocation(savedLocation);
+
+                // Tampilkan hasil di UI thread
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (result != -1) {
+                            Toast.makeText(requireContext(), "Lokasi berhasil disimpan!", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        } else {
+                            Toast.makeText(requireContext(), "Gagal menyimpan lokasi.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
         });
+    }
+
+    private boolean isNetworkAvailable() {
+        if (getContext() == null) {
+            return false;
+        }
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
     }
 
     private void showMapTypePopup(View v) {

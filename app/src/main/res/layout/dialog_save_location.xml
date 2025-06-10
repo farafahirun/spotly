@@ -65,13 +65,21 @@
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
-                <Spinner
-                    android:id="@+id/folderSpinner"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/folderMenu"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
-                    android:background="@drawable/edittext"
-                    android:paddingHorizontal="12dp" />
+                    android:hint="Pilih Folder">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/autoCompleteFolder"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Title Input -->
                 <TextView

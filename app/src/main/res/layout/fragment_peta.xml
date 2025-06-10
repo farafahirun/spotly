@@ -117,7 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-           android:visibility="gone"
+            android:visibility="gone"
             app:cardBackgroundColor="?android:attr/windowBackground"
             app:cardCornerRadius="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -143,27 +143,35 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.8"
+                        android:layout_marginStart="2dp"
                         android:text="Alamat Singkat"
                         android:textSize="24sp"
                         android:textStyle="bold" />
 
-                    <Button
-                        android:id="@+id/buttonRefreshAlamat"
+                    <FrameLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Coba Lagi"
-                        android:visibility="gone"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="8dp"/>
+                        android:layout_gravity="center"
+                        android:layout_height="wrap_content">
 
-                    <ImageView
-                        android:id="@+id/close_panel"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_weight="0.2"
-                        android:contentDescription="Close"
-                        android:src="@drawable/cancel" />
+                        <ImageView
+                            android:id="@+id/buttonRefreshAlamat"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_weight="0.2"
+                            android:visibility="gone"
+                            android:contentDescription="Close"
+                            android:src="@drawable/refresh" />
+
+                        <ImageView
+                            android:id="@+id/close_panel"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_weight="0.2"
+                            android:contentDescription="Close"
+                            android:src="@drawable/cancel" />
+                    </FrameLayout>
                 </LinearLayout>
 
                 <TextView

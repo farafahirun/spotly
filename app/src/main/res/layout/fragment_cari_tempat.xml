@@ -7,45 +7,73 @@
     android:orientation="vertical"
     tools:context=".fragment.CariTempatFragment">
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/searchViewCari"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        android:elevation="4dp"
-        app:iconifiedByDefault="false"
-        app:queryHint="Cari nama tempat, kota, atau alamat..." />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewCari"
+        <LinearLayout
+            android:id="@+id/navbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            tools:listitem="@layout/item_hasil_pencarian" />
-
-        <TextView
-            android:id="@+id/tvInfoCari"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:padding="24dp"
-            android:text="Ketik nama tempat untuk memulai pencarian."
-            android:textColor="?android:attr/textColorSecondary"
-            android:visibility="visible" />
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/windowBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="7dp">
+
+                <ImageView
+                    android:layout_width="140dp"
+                    android:layout_height="55dp"
+                    android:src="@drawable/spotly" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchViewCari"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@drawable/search"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ProgressBar
             android:id="@+id/progressBarCari"
-            style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone" />
 
-    </FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="50dp"
+            android:gravity="center">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewCari"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvInfoCari"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ketik nama tempat untuk memulai pencarian." />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
