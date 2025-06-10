@@ -1,71 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground"
+    android:clipToPadding="false"
     tools:context=".activity.DetailCeritaActivity">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:padding="16dp">
 
-        <!-- Judul -->
         <TextView
             android:id="@+id/tvJudulDetail"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Judul"
+            android:fontFamily="sans-serif-medium"
+            android:text="Judul Cerita yang Cukup Panjang"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Kategori -->
-        <TextView
-            android:id="@+id/tvKategoriDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Kategori"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Icon Perasaan -->
-        <TextView
-            android:id="@+id/tvIconDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="😊"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Lokasi -->
-        <TextView
-            android:id="@+id/tvLokasiDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Lokasi"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Isi Cerita -->
-        <TextView
-            android:id="@+id/tvIsiDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Isi Cerita"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Tanggal -->
         <TextView
             android:id="@+id/tvTanggalDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="10 Juni 2025"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvJudulDetail" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/metadata_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tanggal"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/utama_soft"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTanggalDetail">
 
-        <!-- Peta -->
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mapViewDetail"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvKategoriDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/utama"
+                    android:gravity="center_vertical"
+                    android:text="Kategori"
+                    android:textColor="@color/utama"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvIconDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:text="😊 Senang"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <TextView
+                    android:id="@+id/tvLokasiDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:text="Lokasi Cerita"
+                    android:textColor="?android:attr/textColorSecondary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintTop_toBottomOf="@id/metadata_card" />
+
+        <TextView
+            android:id="@+id/tvIsiDetail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:lineSpacingExtra="4dp"
+            android:text="Ini adalah isi cerita yang akan ditampilkan di sini. Bisa jadi cukup panjang dan berisi beberapa paragraf. Desain ini memberikan ruang yang cukup agar mudah dibaca."
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/map_card"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_marginBottom="16dp" />
-    </LinearLayout>
+            android:layout_marginTop="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:layout_constraintTop_toBottomOf="@id/tvIsiDetail">
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/mapViewDetail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

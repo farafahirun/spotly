@@ -8,7 +8,6 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-    // Mencari lokasi berdasarkan query teks
     @GET("search")
     Call<List<PlaceResult>> searchPlaces(
             @Query("q") String query,

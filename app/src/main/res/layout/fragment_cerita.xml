@@ -43,13 +43,28 @@
             android:background="@drawable/search_custom"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Spinner
-            android:id="@+id/filterSpinnerCerita"
+        <!-- Ganti Spinner dengan HorizontalScrollView ini -->
+        <HorizontalScrollView
+            android:id="@+id/emoji_filter_scrollview"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/edittext"
-            android:paddingHorizontal="12dp" />
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:paddingVertical="8dp">
+
+            <LinearLayout
+                android:id="@+id/emoji_filter_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"/>
+        </HorizontalScrollView>
+
+        <ProgressBar
+            android:id="@+id/progressBarCerita"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewCerita"

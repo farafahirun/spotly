@@ -1,33 +1,39 @@
 package com.example.spotly.activity;
 
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import com.example.spotly.DatabaseHelper;
 import com.example.spotly.R;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class FormCeritaActivity extends AppCompatActivity {
 
     private EditText etKategori, etJudul, etIsi;
-    private Spinner spinnerIconPerasaan;
     private Button btnSimpan;
-    private TextView tvJudulForm;
-    private TextView tvAlamat;
+    private TextView tvJudulForm, tvAlamat;
     private DatabaseHelper dbHelper;
+
+    // Komponen UI baru untuk input emoji
+    private LinearLayout emojiInputContainer;
+    private List<Button> emojiButtons = new ArrayList<>();
+    private String selectedEmoji = ""; // Menyimpan perasaan yang dipilih
 
     private double lat, lng;
     private String alamat;
     private int ceritaIdToUpdate = -1;
     private int savedLocationIdToDelete = -1;
-    private boolean shouldShowMap; // Flag untuk menentukan apakah peta akan ditampilkan
+    private boolean shouldShowMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,43 +42,34 @@ public class FormCeritaActivity extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        // Inisialisasi semua view
+        // Inisialisasi View
         etKategori = findViewById(R.id.etKategori);
         etJudul = findViewById(R.id.etJudul);
         etIsi = findViewById(R.id.etIsi);
-        spinnerIconPerasaan = findViewById(R.id.spinnerIconPerasaan);
         btnSimpan = findViewById(R.id.btnSimpan);
         tvJudulForm = findViewById(R.id.tvJudulForm);
         tvAlamat = findViewById(R.id.tvAlamatCerita);
+        emojiInputContainer = findViewById(R.id.emoji_input_container);
 
-        // Ambil flag dari Intent, defaultnya true (cerita dari peta)
+        // Panggil metode untuk membuat tombol-tombol emoji
+        setupEmojiInputButtons();
+
+        // Ambil data dari Intent
         shouldShowMap = getIntent().getBooleanExtra("show_map", true);
-
-        // Setup Spinner
-        String[] icons = {"😊 Senang", "😢 Sedih", "😠 Marah", "😲 Terkejut", "❤️ Suka", "🤔 Bingung"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, icons);
-        spinnerIconPerasaan.setAdapter(adapter);
-
-        // Cek intent untuk berbagai mode
         ceritaIdToUpdate = getIntent().getIntExtra("cerita_id_to_update", -1);
         savedLocationIdToDelete = getIntent().getIntExtra("saved_location_id_to_delete", -1);
 
+        // Logika untuk mode Tambah atau Edit
         if (ceritaIdToUpdate != -1) {
-            // Mode EDIT
             tvJudulForm.setText("Edit Cerita");
             btnSimpan.setText("Update");
             loadCeritaData(ceritaIdToUpdate);
-        } else if (savedLocationIdToDelete != -1) {
-            // Mode PINDAH dari Lokasi Tersimpan
-            tvJudulForm.setText("Buat Cerita dari Lokasi");
-            prefillFromSavedLocation();
         } else {
-            // Mode BUAT BARU (baik dari PetaFragment atau CariTempatFragment)
+            // Mode Buat Baru
             tvJudulForm.setText("Buat Cerita Baru");
             lat = getIntent().getDoubleExtra("lat", 0.0);
             lng = getIntent().getDoubleExtra("lng", 0.0);
             alamat = getIntent().getStringExtra("alamat");
-
             if (alamat != null && !alamat.isEmpty()) {
                 tvAlamat.setText(alamat);
             } else {
@@ -87,6 +84,43 @@ public class FormCeritaActivity extends AppCompatActivity {
         });
     }
 
+    private void setupEmojiInputButtons() {
+        // Daftar emoji TANPA "Semua"
+        String[] icons = {"😊 Senang", "😢 Sedih", "😠 Marah", "😲 Terkejut", "❤️ Suka", "🤔 Bingung"};
+        emojiInputContainer.removeAllViews();
+        emojiButtons.clear();
+
+        for (String iconText : icons) {
+            Button button = new Button(this, null, android.R.attr.buttonStyleSmall);
+            button.setText(iconText);
+            button.setBackgroundResource(R.drawable.emoji_button_background);
+            button.setTextColor(ContextCompat.getColorStateList(this, R.color.emoji_button_text_color));
+            button.setPadding(40, 0, 40, 0);
+            button.setAllCaps(false);
+
+            button.setOnClickListener(v -> {
+                selectedEmoji = iconText; // Simpan teks emoji yang dipilih
+                updateButtonSelection(); // Perbarui tampilan tombol
+            });
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMarginEnd(16);
+            button.setLayoutParams(params);
+
+            emojiButtons.add(button);
+            emojiInputContainer.addView(button);
+        }
+    }
+
+    private void updateButtonSelection() {
+        for (Button btn : emojiButtons) {
+            btn.setSelected(btn.getText().toString().equals(selectedEmoji));
+        }
+    }
+
     private void loadCeritaData(int id) {
         DatabaseHelper.Cerita cerita = dbHelper.getCeritaById(id);
         if (cerita != null) {
@@ -95,36 +129,29 @@ public class FormCeritaActivity extends AppCompatActivity {
             etIsi.setText(cerita.getIsi());
             tvAlamat.setText(cerita.getAlamat());
 
+            // Set emoji yang sudah tersimpan
+            selectedEmoji = cerita.getIcon_perasaan();
+            updateButtonSelection(); // Update tampilan tombol sesuai data
+
             this.lat = cerita.getLat();
             this.lng = cerita.getLng();
             this.alamat = cerita.getAlamat();
-            this.shouldShowMap = cerita.hasMapView(); // Ambil status peta dari data yang ada
-
-            ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinnerIconPerasaan.getAdapter();
-            for (int i = 0; i < adapter.getCount(); i++) {
-                if (adapter.getItem(i).equals(cerita.getIcon_perasaan())) {
-                    spinnerIconPerasaan.setSelection(i);
-                    break;
-                }
-            }
+            this.shouldShowMap = cerita.hasMapView();
         }
     }
 
-    private void prefillFromSavedLocation() {
-        etJudul.setText(getIntent().getStringExtra("prefill_judul"));
-        this.lat = getIntent().getDoubleExtra("prefill_lat", 0.0);
-        this.lng = getIntent().getDoubleExtra("prefill_lng", 0.0);
-        this.alamat = getIntent().getStringExtra("prefill_alamat");
-        tvAlamat.setText(this.alamat);
-    }
-
     private boolean validateInput() {
+        if (etJudul.getText().toString().trim().isEmpty()) {
+            etJudul.setError("Judul wajib diisi");
+            return false;
+        }
         if (etKategori.getText().toString().trim().isEmpty()) {
             etKategori.setError("Kategori wajib diisi");
             return false;
         }
-        if (etJudul.getText().toString().trim().isEmpty()) {
-            etJudul.setError("Judul wajib diisi");
+        // Validasi baru: pastikan pengguna sudah memilih perasaan
+        if (selectedEmoji.isEmpty()) {
+            Toast.makeText(this, "Pilih perasaanmu dulu ya!", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (etIsi.getText().toString().trim().isEmpty()) {
@@ -136,12 +163,12 @@ public class FormCeritaActivity extends AppCompatActivity {
 
     private void simpanAtauUpdateCerita() {
         String kategori = etKategori.getText().toString().trim();
-        String iconPerasaan = spinnerIconPerasaan.getSelectedItem().toString();
         String judul = etJudul.getText().toString().trim();
         String isi = etIsi.getText().toString().trim();
+        // Ambil perasaan dari variabel yang sudah kita simpan
+        String iconPerasaan = this.selectedEmoji;
 
         if (ceritaIdToUpdate != -1) {
-            // Proses UPDATE (tidak mengubah flag 'has_map_view')
             boolean success = dbHelper.updateCerita(ceritaIdToUpdate, kategori, iconPerasaan, judul, isi);
             if (success) {
                 Toast.makeText(this, "Cerita berhasil diperbarui", Toast.LENGTH_SHORT).show();
@@ -150,21 +177,11 @@ public class FormCeritaActivity extends AppCompatActivity {
                 Toast.makeText(this, "Gagal memperbarui cerita", Toast.LENGTH_SHORT).show();
             }
         } else {
-            // Proses INSERT BARU
             String tanggalSekarang = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-
-            // Buat objek Cerita dengan menyertakan flag 'shouldShowMap'
             DatabaseHelper.Cerita cerita = new DatabaseHelper.Cerita(0, kategori, iconPerasaan, judul, lat, lng, alamat, isi, tanggalSekarang, shouldShowMap);
-
             long result = dbHelper.insertCerita(cerita);
-
             if (result > 0) {
-                if (savedLocationIdToDelete != -1) {
-                    dbHelper.deleteSavedLocation(savedLocationIdToDelete);
-                    Toast.makeText(this, "Cerita dibuat & lokasi dipindahkan", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, "Cerita berhasil disimpan", Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(this, "Cerita berhasil disimpan", Toast.LENGTH_SHORT).show();
                 finish();
             } else {
                 Toast.makeText(this, "Gagal menyimpan cerita", Toast.LENGTH_SHORT).show();
