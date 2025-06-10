@@ -43,37 +43,54 @@
             android:background="@drawable/search"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ProgressBar
-            android:id="@+id/progressBarCari"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewCari"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="50dp"
-            android:gravity="center">
+            android:padding="16dp" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewCari"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="16dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginTop="50dp"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/tvInfoCari"
+            <LinearLayout
+                android:id="@+id/infoLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/btnRefreshCari"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/nosignal"
+                    android:text="Coba Lagi" />
+
+                <TextView
+                    android:id="@+id/tvInfoCari"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/utama"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="16dp"
+                    android:text="Pesan Info" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressBarCari"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ketik nama tempat untuk memulai pencarian." />
-        </LinearLayout>
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>

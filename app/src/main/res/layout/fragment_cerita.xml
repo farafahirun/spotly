@@ -58,34 +58,60 @@
                 android:paddingHorizontal="16dp" />
         </HorizontalScrollView>
 
-        <ProgressBar
-            android:id="@+id/progressBarCerita"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewCerita"
             android:layout_width="match_parent"
-            android:layout_marginBottom="50dp"
-            android:layout_height="match_parent">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewCerita"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="16dp" />
-        </LinearLayout>
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="60dp"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/item_cerita"/>
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginTop="60dp">
 
-            <TextView
+            <LinearLayout
                 android:id="@+id/emptyViewCerita"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="kosong" />
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/empty"
+                    android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:id="@+id/emptyViewCerita_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buat Cerita Pertamamu"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/utama"/>
+
+                <TextView
+                    android:id="@+id/emptyViewCerita_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kenangan indah menanti untuk ditulis."
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressBarCerita"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>
 </LinearLayout>

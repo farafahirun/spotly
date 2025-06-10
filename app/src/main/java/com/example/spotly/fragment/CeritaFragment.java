@@ -33,14 +33,15 @@ public class CeritaFragment extends Fragment {
     private CeritaAdapter adapter;
     private DatabaseHelper dbHelper;
     private List<DatabaseHelper.Cerita> allCeritaList;
-    private TextView emptyView;
     private SearchView searchView;
-
-    // Komponen UI baru
-    private LinearLayout emojiContainer;
     private ProgressBar progressBar;
 
-    // State untuk filter
+    // Komponen untuk Empty State yang lebih baik
+    private View emptyViewContainer;
+    private TextView emptyViewTitle, emptyViewSubtitle;
+
+    // Komponen untuk Filter Emoji
+    private LinearLayout emojiContainer;
     private String selectedEmojiFilter = "Semua";
     private List<Button> emojiButtons = new ArrayList<>();
 
@@ -50,12 +51,14 @@ public class CeritaFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_cerita, container, false);
 
-        // Inisialisasi View
+        // Inisialisasi semua View
         recyclerView = view.findViewById(R.id.recyclerViewCerita);
-        emptyView = view.findViewById(R.id.emptyViewCerita);
         searchView = view.findViewById(R.id.searchViewCerita);
         emojiContainer = view.findViewById(R.id.emoji_filter_container);
         progressBar = view.findViewById(R.id.progressBarCerita);
+        emptyViewContainer = view.findViewById(R.id.emptyViewCerita);
+        emptyViewTitle = view.findViewById(R.id.emptyViewCerita_title);
+        emptyViewSubtitle = view.findViewById(R.id.emptyViewCerita_subtitle);
 
         dbHelper = new DatabaseHelper(getContext());
         allCeritaList = new ArrayList<>();
@@ -67,16 +70,15 @@ public class CeritaFragment extends Fragment {
         return view;
     }
 
-    // Panggil loadCerita setiap kali fragment ditampilkan kembali
     @Override
     public void onResume() {
         super.onResume();
+        // Selalu muat data terbaru setiap kali fragment ditampilkan
         loadCerita();
     }
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        // Inisialisasi adapter dengan list kosong, listener di-pass ke adapter
         adapter = new CeritaAdapter(new ArrayList<>(), getContext(), cerita -> {
             Intent intent = new Intent(getContext(), DetailCeritaActivity.class);
             intent.putExtra("cerita_id", cerita.getId_cerita());
@@ -85,8 +87,70 @@ public class CeritaFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
+    private void loadCerita() {
+        // Tampilkan ProgressBar saat data sedang dimuat dari database
+        progressBar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+        emptyViewContainer.setVisibility(View.GONE);
+
+        // Ambil data di background thread
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            allCeritaList = dbHelper.getAllCerita();
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    // Sembunyikan ProgressBar setelah selesai
+                    progressBar.setVisibility(View.GONE);
+                    // Panggil filterCerita untuk memproses dan menampilkan data atau empty state
+                    filterCerita();
+                });
+            }
+        });
+    }
+
+    private void filterCerita() {
+        if (allCeritaList == null || adapter == null) return;
+
+        String query = searchView.getQuery().toString().toLowerCase().trim();
+        String selectedFeeling = selectedEmojiFilter;
+        List<DatabaseHelper.Cerita> filteredList = new ArrayList<>();
+
+        for (DatabaseHelper.Cerita cerita : allCeritaList) {
+            boolean matchesQuery = query.isEmpty() ||
+                    cerita.getJudul().toLowerCase().contains(query) ||
+                    cerita.getKategori().toLowerCase().contains(query);
+
+            boolean matchesIcon = selectedFeeling.equals("Semua") ||
+                    cerita.getIcon_perasaan().startsWith(selectedFeeling);
+
+            if (matchesQuery && matchesIcon) {
+                filteredList.add(cerita);
+            }
+        }
+
+        // Logika untuk menampilkan RecyclerView atau Empty State
+        if (filteredList.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            emptyViewContainer.setVisibility(View.VISIBLE);
+
+            // Cek apakah ini karena filter atau karena database memang kosong
+            if (allCeritaList.isEmpty()) {
+                emptyViewTitle.setText("Buat Cerita Pertamamu");
+                emptyViewSubtitle.setText("Setiap tempat punya kenangan. Tulis ceritamu sekarang!");
+            } else {
+                emptyViewTitle.setText("Tidak Ada Hasil");
+                emptyViewSubtitle.setText("Coba kata kunci atau filter perasaan yang lain.");
+            }
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyViewContainer.setVisibility(View.GONE);
+        }
+
+        adapter.updateList(filteredList);
+    }
+
+    // --- Sisa metode untuk setup UI (tidak ada perubahan) ---
+
     private void setupEmojiFilterButtons() {
-        // Daftar emoji yang akan menjadi tombol filter
         String[] emojis = {"Semua", "😊", "😢", "😠", "😲", "❤️", "🤔"};
         emojiContainer.removeAllViews();
         emojiButtons.clear();
@@ -96,7 +160,7 @@ public class CeritaFragment extends Fragment {
             button.setText(emoji);
             button.setBackgroundResource(R.drawable.emoji_button_background);
             button.setTextColor(ContextCompat.getColorStateList(getContext(), R.color.emoji_button_text_color));
-            button.setPadding(40, 0, 40, 0); // Padding horizontal
+            button.setPadding(40, 0, 40, 0);
             button.setAllCaps(false);
 
             button.setOnClickListener(v -> {
@@ -109,18 +173,17 @@ public class CeritaFragment extends Fragment {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            params.setMarginEnd(16); // Jarak antar tombol
+            params.setMarginEnd(16);
             button.setLayoutParams(params);
 
             emojiButtons.add(button);
             emojiContainer.addView(button);
         }
-        updateButtonSelection(); // Set tombol "Semua" sebagai default terpilih
+        updateButtonSelection();
     }
 
     private void updateButtonSelection() {
         for (Button btn : emojiButtons) {
-            // Set status 'selected' berdasarkan filter yang aktif
             btn.setSelected(btn.getText().toString().equals(selectedEmojiFilter));
         }
     }
@@ -138,64 +201,5 @@ public class CeritaFragment extends Fragment {
                 return true;
             }
         });
-    }
-
-    private void loadCerita() {
-        // Tampilkan ProgressBar saat data dimuat
-        progressBar.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
-        emptyView.setVisibility(View.GONE);
-
-        // Ambil data dari database di background thread
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            allCeritaList = dbHelper.getAllCerita();
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    // Sembunyikan ProgressBar setelah selesai
-                    progressBar.setVisibility(View.GONE);
-                    if (allCeritaList.isEmpty()) {
-                        emptyView.setVisibility(View.VISIBLE);
-                    } else {
-                        recyclerView.setVisibility(View.VISIBLE);
-                        // Terapkan filter ke data yang baru dimuat
-                        filterCerita();
-                    }
-                });
-            }
-        });
-    }
-
-    private void filterCerita() {
-        if (allCeritaList == null || adapter == null) return;
-
-        String query = searchView.getQuery().toString().toLowerCase().trim();
-        // Ambil emoji pertama dari filter (misal: "😊" dari "😊 Senang")
-        String selectedFeeling = selectedEmojiFilter;
-
-        List<DatabaseHelper.Cerita> filteredList = new ArrayList<>();
-        for (DatabaseHelper.Cerita cerita : allCeritaList) {
-            boolean matchesQuery = query.isEmpty() ||
-                    cerita.getJudul().toLowerCase().contains(query) ||
-                    cerita.getKategori().toLowerCase().contains(query);
-
-            boolean matchesIcon = selectedFeeling.equals("Semua") ||
-                    cerita.getIcon_perasaan().startsWith(selectedFeeling);
-
-            if (matchesQuery && matchesIcon) {
-                filteredList.add(cerita);
-            }
-        }
-
-        // Cek kembali setelah filter, mungkin hasilnya jadi kosong
-        if(filteredList.isEmpty()) {
-            emptyView.setVisibility(View.VISIBLE);
-            emptyView.setText("Tidak ada cerita yang cocok.");
-            recyclerView.setVisibility(View.GONE);
-        } else {
-            emptyView.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
-        }
-
-        adapter.updateList(filteredList);
     }
 }

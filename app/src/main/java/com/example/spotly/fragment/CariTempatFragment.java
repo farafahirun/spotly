@@ -11,6 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,49 +47,57 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
     private ProgressBar progressBar;
     private TextView tvInfo;
 
+    // Komponen UI Baru
+    private LinearLayout infoLayout;
+    private ImageView btnRefresh;
+
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
 
-    // --- Variabel Baru untuk Refresh Otomatis ---
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
-    private String lastFailedQuery = null; // Menyimpan query yang gagal karena offline
+    private String lastFailedQuery = null;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_cari_tempat, container, false);
 
-        // Inisialisasi semua view
         searchView = view.findViewById(R.id.searchViewCari);
         recyclerView = view.findViewById(R.id.recyclerViewCari);
         progressBar = view.findViewById(R.id.progressBarCari);
         tvInfo = view.findViewById(R.id.tvInfoCari);
+        infoLayout = view.findViewById(R.id.infoLayout);
+        btnRefresh = view.findViewById(R.id.btnRefreshCari);
 
         setupRecyclerView();
         setupSearchView();
-        setupNetworkCallback(); // Panggil setup untuk listener jaringan
+        setupNetworkCallback();
+
+        // Tambahkan listener untuk tombol refresh manual
+        btnRefresh.setOnClickListener(v -> {
+            if (lastFailedQuery != null && !lastFailedQuery.isEmpty()) {
+                performSearch(lastFailedQuery);
+            }
+        });
 
         return view;
     }
 
-    /**
-     * Metode ini menyiapkan listener yang akan aktif saat status jaringan berubah.
-     */
     private void setupNetworkCallback() {
         connectivityManager = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         networkCallback = new ConnectivityManager.NetworkCallback() {
             @Override
             public void onAvailable(@NonNull Network network) {
                 super.onAvailable(network);
-                // Jaringan kembali tersedia
                 if (lastFailedQuery != null) {
-                    // Jika ada pencarian yang gagal sebelumnya, coba lagi secara otomatis
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Jaringan kembali terhubung, mencoba mencari ulang...", Toast.LENGTH_SHORT).show();
-                        performSearch(lastFailedQuery);
-                        lastFailedQuery = null; // Kosongkan setelah mencoba
-                    });
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Jaringan kembali terhubung, mencoba mencari ulang...", Toast.LENGTH_SHORT).show();
+                            performSearch(lastFailedQuery);
+                            lastFailedQuery = null;
+                        });
+                    }
                 }
             }
         };
@@ -95,8 +106,7 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
     @Override
     public void onResume() {
         super.onResume();
-        // Daftarkan listener saat fragment aktif
-        if (connectivityManager != null && networkCallback != null) {
+        if (connectivityManager != null) {
             connectivityManager.registerDefaultNetworkCallback(networkCallback);
         }
     }
@@ -104,8 +114,7 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
     @Override
     public void onPause() {
         super.onPause();
-        // Hapus listener saat fragment tidak aktif untuk menghindari memory leak
-        if (connectivityManager != null && networkCallback != null) {
+        if (connectivityManager != null) {
             connectivityManager.unregisterNetworkCallback(networkCallback);
         }
     }
@@ -120,60 +129,46 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
             @Override
             public void onResponse(@NonNull Call<List<PlaceResult>> call, @NonNull Response<List<PlaceResult>> response) {
                 showLoading(false);
-                lastFailedQuery = null; // Pencarian berhasil, hapus penanda query gagal
+                lastFailedQuery = null;
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().isEmpty()) {
-                        showInfo("Tidak ada hasil ditemukan untuk '" + query + "'.");
+                        showInfo("Tidak ada hasil ditemukan untuk '" + query + "'.", false);
                     } else {
-                        tvInfo.setVisibility(View.GONE);
+                        infoLayout.setVisibility(View.GONE);
                         adapter.setData(response.body());
                     }
                 } else {
-                    showInfo("Gagal memuat data. Error: " + response.code());
+                    showInfo("Gagal memuat data. Error: " + response.code(), true);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<List<PlaceResult>> call, @NonNull Throwable t) {
                 showLoading(false);
-                // Saat gagal, simpan query yang gagal dan tampilkan pesan
                 lastFailedQuery = query;
-                showInfo("Gagal terhubung. Menunggu koneksi internet kembali...");
+                showInfo("Gagal terhubung. Periksa koneksi internet Anda.", true);
             }
         });
     }
 
-    @Override
-    public void onItemClick(PlaceResult placeResult) {
-        hideKeyboard();
-        try {
-            double lat = Double.parseDouble(placeResult.getLatitude());
-            double lon = Double.parseDouble(placeResult.getLongitude());
-
-            Intent intent = new Intent(getContext(), FormCeritaActivity.class);
-            intent.putExtra("lat", lat);
-            intent.putExtra("lng", lon);
-            intent.putExtra("alamat", placeResult.getDisplayName());
-            intent.putExtra("show_map", true);
-
-            startActivity(intent);
-
-        } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "Data lokasi dari API tidak valid.", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
+    // Metode showInfo diubah untuk menerima parameter kedua
+    private void showInfo(String message, boolean showRefreshButton) {
+        recyclerView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+        infoLayout.setVisibility(View.VISIBLE);
+        tvInfo.setText(message);
+        btnRefresh.setVisibility(showRefreshButton ? View.VISIBLE : View.GONE);
     }
 
-    // ... (Sisa metode lain seperti setupRecyclerView, setupSearchView, showLoading, showInfo, hideKeyboard tetap sama)
+    // ... (Sisa kode lain seperti onItemClick, setupRecyclerView, showLoading, dll. tetap sama)
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new PencarianAdapter(getContext());
         adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
     }
-
     private void setupSearchView() {
-        showInfo("Ketik nama tempat untuk memulai pencarian.");
+        showInfo("Ketik nama tempat untuk memulai pencarian.", false);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -191,7 +186,7 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
                 String query = newText.trim();
                 if (query.length() < 3) {
                     adapter.clearData();
-                    showInfo("Ketik minimal 3 huruf untuk memulai pencarian.");
+                    showInfo("Ketik minimal 3 huruf untuk memulai pencarian.", false);
                     return true;
                 }
                 searchRunnable = () -> performSearch(query);
@@ -205,18 +200,11 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
         if (isLoading) {
             progressBar.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
-            tvInfo.setVisibility(View.GONE);
+            infoLayout.setVisibility(View.GONE);
         } else {
             progressBar.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void showInfo(String message) {
-        recyclerView.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-        tvInfo.setVisibility(View.VISIBLE);
-        tvInfo.setText(message);
     }
 
     private void hideKeyboard() {
@@ -225,6 +213,24 @@ public class CariTempatFragment extends Fragment implements PencarianAdapter.OnI
             if (imm != null) {
                 imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
             }
+        }
+    }
+
+    @Override
+    public void onItemClick(PlaceResult placeResult) {
+        hideKeyboard();
+        try {
+            double lat = Double.parseDouble(placeResult.getLatitude());
+            double lon = Double.parseDouble(placeResult.getLongitude());
+            Intent intent = new Intent(getContext(), FormCeritaActivity.class);
+            intent.putExtra("lat", lat);
+            intent.putExtra("lng", lon);
+            intent.putExtra("alamat", placeResult.getDisplayName());
+            intent.putExtra("show_map", true);
+            startActivity(intent);
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Data lokasi dari API tidak valid.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 }

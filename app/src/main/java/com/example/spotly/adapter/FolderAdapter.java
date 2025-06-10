@@ -1,5 +1,6 @@
 package com.example.spotly.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.text.InputType;
@@ -9,28 +10,49 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.spotly.AppExecutors;
 import com.example.spotly.DatabaseHelper;
 import com.example.spotly.R;
 import com.example.spotly.activity.SavedLocationActivity;
+
 import java.util.List;
 
 public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder> {
 
+    /**
+     * Interface untuk komunikasi dari Adapter ke Fragment.
+     */
+    public interface FolderAdapterListener {
+        void onFolderDeleted();
+    }
+
     private List<DatabaseHelper.Folder> folderList;
     private Context context;
     private DatabaseHelper databaseHelper;
+    private FolderAdapterListener listener; // Variabel untuk listener
 
-    public FolderAdapter(List<DatabaseHelper.Folder> folderList, Context context) {
+    /**
+     * Konstruktor diubah untuk menerima listener dari Fragment.
+     * @param folderList List data folder.
+     * @param context Context dari activity/fragment.
+     * @param listener Implementasi listener (biasanya fragment itu sendiri).
+     */
+    public FolderAdapter(List<DatabaseHelper.Folder> folderList, Context context, FolderAdapterListener listener) {
         this.folderList = folderList;
         this.context = context;
         this.databaseHelper = new DatabaseHelper(context);
+        this.listener = listener;
     }
 
-    // Metode untuk update data dari fragment
+    /**
+     * Metode untuk memperbarui data dari fragment.
+     * @param newFolderList Daftar folder yang baru.
+     */
     public void setData(List<DatabaseHelper.Folder> newFolderList) {
         this.folderList = newFolderList;
         notifyDataSetChanged();
@@ -48,18 +70,21 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
         DatabaseHelper.Folder folder = folderList.get(position);
         holder.txtFolderName.setText(folder.nama_folder);
 
-        // Mengambil jumlah file juga operasi I/O, pindahkan ke background
+        // Mengambil jumlah file juga operasi I/O, jalankan di background
         AppExecutors.getInstance().diskIO().execute(() -> {
             int fileCount = databaseHelper.getFileCountInFolder(folder.getId_folder());
-            ((android.app.Activity) context).runOnUiThread(() -> {
-                if (fileCount == 0) {
-                    holder.jumlah_file.setText("Kosong");
-                } else {
-                    holder.jumlah_file.setText(fileCount + " file");
-                }
-            });
+            if (context instanceof Activity) {
+                ((Activity) context).runOnUiThread(() -> {
+                    if (fileCount == 0) {
+                        holder.jumlah_file.setText("Kosong");
+                    } else {
+                        holder.jumlah_file.setText(fileCount + " file");
+                    }
+                });
+            }
         });
 
+        // Klik item untuk membuka isi folder
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, SavedLocationActivity.class);
             intent.putExtra("folder_id", folder.getId_folder());
@@ -87,10 +112,12 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
             if (!newName.isEmpty()) {
                 AppExecutors.getInstance().diskIO().execute(() -> {
                     databaseHelper.updateFolder(folder.getId_folder(), newName);
-                    ((android.app.Activity) context).runOnUiThread(() -> {
-                        folder.nama_folder = newName;
-                        notifyItemChanged(position);
-                    });
+                    if (context instanceof Activity) {
+                        ((Activity) context).runOnUiThread(() -> {
+                            folder.nama_folder = newName;
+                            notifyItemChanged(position);
+                        });
+                    }
                 });
             }
         });
@@ -98,18 +125,25 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
         builder.show();
     }
 
-    private void showDeleteDialog(DatabaseHelper.Folder folder, int position) {
+    private void showDeleteDialog(final DatabaseHelper.Folder folder, final int position) {
         new AlertDialog.Builder(context)
                 .setTitle("Hapus Folder")
                 .setMessage("Apakah Anda yakin ingin menghapus folder '" + folder.getNama_folder() + "'? Semua lokasi di dalamnya juga akan terhapus.")
                 .setPositiveButton("Hapus", (dialog, which) -> {
                     AppExecutors.getInstance().diskIO().execute(() -> {
                         databaseHelper.deleteFolder(folder.getId_folder());
-                        ((android.app.Activity) context).runOnUiThread(() -> {
-                            folderList.remove(position);
-                            notifyItemRemoved(position);
-                            notifyItemRangeChanged(position, folderList.size());
-                        });
+                        if (context instanceof Activity) {
+                            ((Activity) context).runOnUiThread(() -> {
+                                folderList.remove(position);
+                                notifyItemRemoved(position);
+                                notifyItemRangeChanged(position, folderList.size());
+
+                                // Panggil listener untuk memberitahu fragment bahwa item telah dihapus
+                                if (listener != null) {
+                                    listener.onFolderDeleted();
+                                }
+                            });
+                        }
                     });
                 })
                 .setNegativeButton("Batal", null)

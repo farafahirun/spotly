@@ -12,6 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,63 +26,73 @@ import com.example.spotly.adapter.FolderAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpanFragment extends Fragment {
+/**
+ * SimpanFragment sekarang mengimplementasikan FolderAdapterListener
+ * untuk menerima event dari adapter.
+ */
+public class SimpanFragment extends Fragment implements FolderAdapter.FolderAdapterListener {
 
     private RecyclerView recyclerView;
     private FolderAdapter folderAdapter;
     private DatabaseHelper databaseHelper;
     private ImageView btnAddFolder;
-    private TextView emptyView; // Tambahkan ini
+    private View emptyViewContainer;
     private ProgressBar progressBar;
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_simpan, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewFolder);
         btnAddFolder = view.findViewById(R.id.btnAddFolder);
         progressBar = view.findViewById(R.id.progressBarSimpan);
-        emptyView = view.findViewById(R.id.emptyViewSimpan); // Pastikan ID ini ada di layout
+        emptyViewContainer = view.findViewById(R.id.emptyViewSimpan);
         databaseHelper = new DatabaseHelper(getContext());
 
         setupRecyclerView();
-        loadFolders();
 
         btnAddFolder.setOnClickListener(v -> showAddFolderDialog());
 
         return view;
     }
 
+    /**
+     * onResume akan selalu dipanggil saat fragment kembali ditampilkan,
+     * memastikan data selalu yang terbaru.
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadFolders();
+    }
+
     private void setupRecyclerView() {
-        // Inisialisasi adapter dengan list kosong dulu
-        folderAdapter = new FolderAdapter(new ArrayList<>(), getContext());
+        // Saat membuat adapter, kita passing 'this' sebagai listener.
+        // Ini menghubungkan fragment ini dengan adapter.
+        folderAdapter = new FolderAdapter(new ArrayList<>(), getContext(), this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(folderAdapter);
     }
 
     private void loadFolders() {
-        // 1. Tampilkan loading, sembunyikan yang lain
         progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
-        emptyView.setVisibility(View.GONE);
+        emptyViewContainer.setVisibility(View.GONE);
 
-        // 2. Jalankan operasi database di background thread
+        // Jalankan operasi database di background thread
         AppExecutors.getInstance().diskIO().execute(() -> {
             List<DatabaseHelper.Folder> folderList = databaseHelper.getAllFolders();
 
-            // 3. Update UI kembali di main thread setelah data didapat
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    // Sembunyikan loading
                     progressBar.setVisibility(View.GONE);
-
                     if (folderList.isEmpty()) {
-                        emptyView.setVisibility(View.VISIBLE);
+                        emptyViewContainer.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
                     } else {
-                        emptyView.setVisibility(View.GONE);
+                        emptyViewContainer.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
-                        // Perbarui data di adapter
                         folderAdapter.setData(folderList);
                     }
                 });
@@ -99,11 +111,10 @@ public class SimpanFragment extends Fragment {
         builder.setPositiveButton("Tambah", (dialog, which) -> {
             String folderName = input.getText().toString().trim();
             if (!folderName.isEmpty()) {
-                // Jalankan operasi insert di background thread
                 AppExecutors.getInstance().diskIO().execute(() -> {
                     databaseHelper.insertFolder(folderName);
-                    // Muat ulang data folder untuk me-refresh tampilan (akan otomatis menampilkan loading)
                     if (getActivity() != null) {
+                        // Memanggil loadFolders akan otomatis merefresh list dan menampilkan loading
                         getActivity().runOnUiThread(this::loadFolders);
                     }
                 });
@@ -113,7 +124,19 @@ public class SimpanFragment extends Fragment {
         });
 
         builder.setNegativeButton("Batal", (dialog, which) -> dialog.cancel());
-
         builder.show();
+    }
+
+    /**
+     * Ini adalah implementasi metode dari interface FolderAdapterListener.
+     * Metode ini akan dipanggil oleh adapter setelah sebuah folder berhasil dihapus.
+     */
+    @Override
+    public void onFolderDeleted() {
+        // Cek apakah adapter sekarang kosong setelah item dihapus
+        if (folderAdapter.getItemCount() == 0) {
+            emptyViewContainer.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 }
