@@ -11,6 +11,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/tvJudulForm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Buat Cerita Baru"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"
+            android:textColor="?android:attr/textColorPrimary"/>
+
         <!-- Kategori -->
         <EditText
             android:id="@+id/etKategori"
@@ -29,7 +39,7 @@
 
         <!-- Lokasi -->
         <EditText
-            android:id="@+id/etLokasi"
+            android:id="@+id/tvAlamatCerita"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Alamat Lokasi"

@@ -4,7 +4,6 @@ package com.example.spotly;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -12,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.spotly.databinding.ActivityMainBinding;
+import com.example.spotly.fragment.CariTempatFragment; // <-- IMPORT FRAGMENT BARU
 import com.example.spotly.fragment.CeritaFragment;
 import com.example.spotly.fragment.PetaFragment;
 import com.example.spotly.fragment.SimpanFragment;
@@ -22,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -31,9 +30,11 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new PetaFragment())
-                .commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new PetaFragment()) // Pastikan ID container benar
+                    .commit();
+        }
 
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
@@ -43,13 +44,16 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new PetaFragment();
             } else if (id == R.id.simpan) {
                 selectedFragment = new SimpanFragment();
-            } else if (id == R.id.cerita) {
+            } else if (id == R.id.cari) { // <-- TAMBAHKAN BLOK INI
+                selectedFragment = new CariTempatFragment();
+            }
+            else if (id == R.id.cerita) {
                 selectedFragment = new CeritaFragment();
             }
 
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, selectedFragment)
+                        .replace(R.id.fragment_container, selectedFragment) // Pastikan ID container Anda benar
                         .commit();
             }
 
@@ -58,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void hideBottomNav() {
+        // Pastikan ID bottom_navigation sudah benar sesuai layout Anda
         findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
     }
 

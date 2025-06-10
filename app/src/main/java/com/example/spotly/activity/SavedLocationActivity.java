@@ -2,20 +2,18 @@ package com.example.spotly.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
-
+import com.example.spotly.DatabaseHelper;
 import com.example.spotly.R;
 import com.example.spotly.adapter.SavedLocationAdapter;
-import com.example.spotly.DatabaseHelper;
 import com.example.spotly.DatabaseHelper.SavedLocation;
 
 import java.util.List;
@@ -25,13 +23,9 @@ public class SavedLocationActivity extends AppCompatActivity {
     private SavedLocationAdapter adapter;
     private List<SavedLocation> savedLocationList;
     private DatabaseHelper databaseHelper;
-    private static final int REQUEST_CODE_PICK_LOCATION = 1001;
-    private double selectedLat = 0.0;
-    private double selectedLng = 0.0;
-    private boolean isLocationSelected = false;
-    private String selectedAlamat = "";
     private int folderId;
     private ImageView kembali_simpan;
+    private TextView emptyView; // Tampilan saat data kosong
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +33,10 @@ public class SavedLocationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_saved_location);
 
         recyclerView = findViewById(R.id.recyclerViewSavedLocation);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        emptyView = findViewById(R.id.emptyViewSavedLocation); // ID ini harus ada di XML
         kembali_simpan = findViewById(R.id.kembali_simpan);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         databaseHelper = new DatabaseHelper(this);
 
         folderId = getIntent().getIntExtra("folder_id", -1);
@@ -50,30 +46,24 @@ public class SavedLocationActivity extends AppCompatActivity {
             return;
         }
 
-        kembali_simpan.setOnClickListener(v -> {
-            onBackPressed();
-        });
-        loadSavedLocations();
+        kembali_simpan.setOnClickListener(v -> onBackPressed());
     }
 
     private void loadSavedLocations() {
         savedLocationList = databaseHelper.getLocationsByFolderId(folderId);
-        adapter = new SavedLocationAdapter(savedLocationList, this, databaseHelper);
-        recyclerView.setAdapter(adapter);
-    }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
-            selectedLat = data.getDoubleExtra("lat", 0.0);
-            selectedLng = data.getDoubleExtra("lng", 0.0);
-            selectedAlamat = data.getStringExtra("alamat");
-            isLocationSelected = true;
+        if (savedLocationList.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
+            adapter = new SavedLocationAdapter(savedLocationList, this, databaseHelper);
+            recyclerView.setAdapter(adapter);
         }
     }
 
+    // Gunakan onResume untuk me-refresh data setiap kali activity ini ditampilkan
     @Override
     protected void onResume() {
         super.onResume();

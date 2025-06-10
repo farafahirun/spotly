@@ -30,8 +30,8 @@
                     android:id="@+id/kembali_simpan"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:layout_marginTop="10dp"
                     android:layout_marginLeft="15dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
                     android:src="@drawable/kembali" />
             </LinearLayout>
@@ -42,5 +42,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/emptyViewSavedLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="kosong" />
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>

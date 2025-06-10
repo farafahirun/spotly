@@ -1,14 +1,15 @@
 package com.example.spotly.activity;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.*;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.spotly.DatabaseHelper;
 import com.example.spotly.R;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -17,9 +18,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class DetailCeritaActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    TextView tvJudul, tvKategori, tvIcon, tvLokasi, tvIsi, tvTanggal;
-    MapView mapView;
+    private TextView tvJudul, tvKategori, tvIcon, tvLokasi, tvIsi, tvTanggal;
+    private MapView mapView;
+    private GoogleMap googleMap;
+    private DatabaseHelper dbHelper;
     private double lat, lng;
+    private String judulCerita;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,34 +38,62 @@ public class DetailCeritaActivity extends AppCompatActivity implements OnMapRead
         tvTanggal = findViewById(R.id.tvTanggalDetail);
         mapView = findViewById(R.id.mapViewDetail);
 
+        dbHelper = new DatabaseHelper(this);
+
+        // Inisialisasi MapView
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        // Get data from intent
-        String judul = getIntent().getStringExtra("judul");
-        String kategori = getIntent().getStringExtra("kategori");
-        String icon = getIntent().getStringExtra("icon_perasaan");
-        String lokasi = getIntent().getStringExtra("alamat");
-        String isi = getIntent().getStringExtra("isi");
-        String tanggal = getIntent().getStringExtra("tanggal");
-        lat = getIntent().getDoubleExtra("lat", 0.0);
-        lng = getIntent().getDoubleExtra("lng", 0.0);
+        // Ambil ID dari intent
+        int ceritaId = getIntent().getIntExtra("cerita_id", -1);
+        if (ceritaId != -1) {
+            loadCeritaDetails(ceritaId);
+        } else {
+            Toast.makeText(this, "Gagal memuat detail cerita.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
 
-        tvJudul.setText(judul);
-        tvKategori.setText(kategori);
-        tvIcon.setText(icon);
-        tvLokasi.setText(lokasi);
-        tvIsi.setText(isi);
-        tvTanggal.setText(tanggal);
+    private void loadCeritaDetails(int id) {
+        DatabaseHelper.Cerita cerita = dbHelper.getCeritaById(id);
+        if(cerita != null) {
+            tvJudul.setText(cerita.getJudul());
+            tvKategori.setText(cerita.getKategori());
+            tvIcon.setText(cerita.getIcon_perasaan());
+            tvLokasi.setText(cerita.getAlamat());
+            tvIsi.setText(cerita.getIsi());
+            tvTanggal.setText(cerita.getTanggal());
+
+            this.lat = cerita.getLat();
+            this.lng = cerita.getLng();
+            this.judulCerita = cerita.getJudul();
+
+            // Jika peta sudah siap, langsung update
+            if (googleMap != null) {
+                updateMapLocation();
+            }
+        } else {
+            Toast.makeText(this, "Cerita tidak ditemukan.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        LatLng location = new LatLng(lat, lng);
-        googleMap.addMarker(new MarkerOptions().position(location).title("Lokasi Cerita"));
-        googleMap.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(location, 15f));
+    public void onMapReady(GoogleMap map) {
+        googleMap = map;
+        if (lat != 0.0 && lng != 0.0) {
+            updateMapLocation();
+        }
     }
 
+    private void updateMapLocation() {
+        LatLng location = new LatLng(lat, lng);
+        googleMap.clear(); // Hapus marker sebelumnya jika ada
+        googleMap.addMarker(new MarkerOptions().position(location).title(judulCerita));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
+    }
+
+    // Override lifecycle methods untuk MapView
     @Override
     protected void onResume() {
         super.onResume();

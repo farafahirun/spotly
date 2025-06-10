@@ -57,6 +57,15 @@
             android:orientation="horizontal">
 
             <ImageView
+                android:id="@+id/buttonBuatCerita"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/layerr_icon"
+                android:layout_marginEnd="25dp"
+                android:contentDescription="Buat Cerita"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+
+            <ImageView
                 android:id="@+id/buttonEdit"
                 android:layout_width="20dp"
                 android:layout_height="20dp"

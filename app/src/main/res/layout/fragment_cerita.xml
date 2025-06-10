@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -32,10 +33,39 @@
             </LinearLayout>
         </LinearLayout>
 
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchViewCerita"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="15dp"
+            android:background="@drawable/search_custom"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/filterSpinnerCerita"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/edittext"
+            android:paddingHorizontal="12dp" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewCerita"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/emptyViewCerita"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="kosong" />
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/petaFragment">
+
+    <fragment
+        android:id="@+id/petaFragment"
+        android:name="com.example.spotly.fragment.PetaFragment"
+        android:label="fragment_peta"
+        tools:layout="@layout/fragment_peta" />
+    <fragment
+        android:id="@+id/simpanFragment"
+        android:name="com.example.spotly.fragment.SimpanFragment"
+        android:label="fragment_simpan"
+        tools:layout="@layout/fragment_simpan" />
+    <fragment
+        android:id="@+id/ceritaFragment"
+        android:name="com.example.spotly.fragment.CeritaFragment"
+        android:label="fragment_cerita"
+        tools:layout="@layout/fragment_cerita" />
+</navigation>
